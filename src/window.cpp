@@ -31,6 +31,10 @@ void end_drawing(Window& self) {
     EndDrawing();
 }
 
+void draw_fps(Window& self) {
+    DrawFPS(15, 15);
+}
+
 void spdlog_tracelog_callback(int logLevel, const char *text, va_list args) {
     constexpr auto bufLen = 128;
     char buf[bufLen];

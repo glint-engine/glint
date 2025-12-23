@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 
 #include "defer.hpp"
+#include "jsutil.h"
 #include "objects.hpp"
 #include "window.hpp"
 
@@ -31,6 +32,7 @@ int run(Engine& self, const char *path) {
     try {
         self.js.eval_file(game_path.c_str());
         self.js.eval_string("var game = new Game();");
+        self.js.pop(1);
     } catch (const mujs::Exception& e) {
         spdlog::error("Error initializing game: {}", e.what());
         return 1;
@@ -51,12 +53,16 @@ int run(Engine& self, const char *path) {
     try {
         while (!window::should_close(w)) {
             self.js.eval_string("game.update()");
+            self.js.pop(1);
             window::begin_drawing(w);
             self.js.eval_string("game.draw()");
+            self.js.pop(1);
+            window::draw_fps(w);
             window::end_drawing(w);
         }
     } catch (mujs::Exception& e) {
         spdlog::error("Error running game: {}", e.what());
+        ::js_dump(self.js.j);
         return 1;
     }
 

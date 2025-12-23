@@ -10,7 +10,7 @@ function Game() {
 
     this.bgColor = new Color("#181818");
     this.balls = [];
-    for (var i = 1; i < 100; i++) {
+    for (var i = 1; i < 500; i++) {
         var x = Math.random() * (this.config.width - 30) + 15;
         var y = Math.random() * (this.config.height - 30) + 15;
         var angle = Math.random() * 360;
@@ -42,13 +42,17 @@ function Ball(x, y, angle, color) {
     this.color = color;
 
     this.update = function() {
+        var oldX = this.x;
+        var oldY = this.y;
         this.x += this.xVel * screen.dt;
         this.y += this.yVel * screen.dt;
 
         if (this.x < this.radius || this.x >= screen.width - this.radius) {
+            this.x = oldX;
             this.xVel *= -1;
         }
         if (this.y < this.radius || this.y >= screen.height - this.radius) {
+            this.y = oldY;
             this.yVel *= -1;
         }
     }

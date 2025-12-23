@@ -24,7 +24,7 @@ void muen_graphics_clear(js_State *j);
 void muen_graphics_circle(js_State *j);
 }
 
-Color js_getcolor(js_State *j, int idx);
+Color js_tocolor(js_State *j, int idx);
 
 namespace objects {
 
@@ -162,7 +162,7 @@ void muen_screen_height(js_State *j) {
 }
 
 void muen_graphics_clear(js_State *j) {
-    Color c = js_getcolor(j, 1);
+    Color c = js_tocolor(j, 1);
     ClearBackground(c);
     js_pushundefined(j);
 }
@@ -171,12 +171,12 @@ void muen_graphics_circle(js_State *j) {
     int x = js_tointeger(j, 1);
     int y = js_tointeger(j, 2);
     int radius = js_tointeger(j, 3);
-    Color color = js_getcolor(j, 4);
+    Color color = js_tocolor(j, 4);
     DrawCircle(x, y, radius, color);
     js_pushundefined(j);
 }
 
-Color js_getcolor(js_State *j, int idx) {
+Color js_tocolor(js_State *j, int idx) {
     Color c;
 
     js_getproperty(j, -1, "r");
@@ -193,8 +193,6 @@ Color js_getcolor(js_State *j, int idx) {
 
     js_getproperty(j, -1, "a");
     c.a = js_tointeger(j, -1);
-    js_pop(j, 1);
-
     js_pop(j, 1);
 
     return c;

@@ -25,6 +25,8 @@ struct Js {
 
     void dump_error();
 
+    void pop(int n);
+
     void eval_file(const char *path);
     void extracted();
     void eval_string(const char *str);

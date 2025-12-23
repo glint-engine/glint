@@ -23,4 +23,6 @@ void begin_drawing(Window& self);
 
 void end_drawing(Window& self);
 
+void draw_fps(Window& self);
+
 } // namespace window

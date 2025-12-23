@@ -8,12 +8,15 @@ add_requires("spdlog 1.16.0", {
         std_format = true,
     },
 })
-set_languages("c++20")
+
+set_languages({"c++20", "c11"})
 
 target("muen")
     set_kind("binary")
     add_files("src/*.cpp")
+    add_files("src/*.c")
     add_headerfiles("src/*.hpp")
+    add_headerfiles("src/*.h")
     add_packages({"mujs", "spdlog", "raylib"})
     add_defines("SPDLOG_COMPILED_LIB")
 

@@ -31,8 +31,12 @@ ObjectBuilder Js::object(const char *prototype) {
 }
 
 void Js::dump_error() {
-    spdlog::error("Error initializing game: {}", js_tostring(j, -1));
-    js_pop(j, 1);
+    spdlog::error("{}", js_tostring(j, -1));
+    ::js_pop(this->j, 1);
+}
+
+void Js::pop(int n) {
+    ::js_pop(this->j, n);
 }
 
 void Js::eval_file(const char *path) {
