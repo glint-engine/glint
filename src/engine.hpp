@@ -1,8 +1,11 @@
 #pragma once
 
-#include "mujs.hpp"
+#include <unordered_map>
+#include <string>
 
-namespace engine {
+#include "js.hpp"
+
+namespace muen::engine {
 
 struct Config {
     int width = 800;
@@ -11,19 +14,16 @@ struct Config {
     const char *title = "muen2d";
 };
 
-struct Context {
-    const char *root_path;
-};
-
 struct Engine {
-    mujs::Js js;
-    Context context;
+    js::State *js;
+    const char *root_path;
+    std::unordered_map<std::string, std::string> *modules;
 };
 
-Engine engine();
+Engine create();
 
 void destroy(Engine& window);
 
 int run(Engine& self, const char *path);
 
-} // namespace engine
+} // namespace muen::engine

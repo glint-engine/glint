@@ -13,11 +13,12 @@ set_languages({"c++20", "c11"})
 
 target("muen")
     set_kind("binary")
-    add_files("src/*.cpp")
-    add_files("src/*.c")
-    add_files("src/*.js")
-    add_headerfiles("src/*.hpp")
-    add_headerfiles("src/*.h")
+    add_files("src/**.cpp")
+    add_files("src/**.c")
+    add_files("muen2djs/**.js")
+    add_includedirs("src", {public = true})
+    add_headerfiles("src/(**.hpp)")
+    add_headerfiles("src/(**.h)")
     add_packages({"mujs", "spdlog", "raylib"})
     add_defines("SPDLOG_COMPILED_LIB")
     add_rules("utils.bin2c", {extensions = ".js"})
@@ -90,4 +91,3 @@ target("muen")
 --
 -- @endcode
 --
-

@@ -1,3 +1,6 @@
+var screen = require("muen/screen")
+var graphics = require("muen/graphics")
+
 function Ball(x, y, angle, color) {
     this.x = x;
     this.y = y;

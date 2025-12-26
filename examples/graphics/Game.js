@@ -1,5 +1,9 @@
-function Game() {
+var graphics = require("muen/graphics")
+var Color = require("muen/Color")
+var Vector2 = require("muen/Vector2")
+var Rectangle = require("muen/Rectangle")
 
+module.exports = function Game() {
     this.config = {
         title: "Graphics",
     };
@@ -20,4 +24,3 @@ function Game() {
         // graphics.rectangle(50, 100, 30, 30, 40, new Color("#c49bffff"));
     }
 }
-

@@ -7,9 +7,12 @@ namespace window {
 
 void spdlog_tracelog_callback(int logLevel, const char *text, va_list args);
 
-Window create(Config config) {
+auto setup() -> void {
     SetTraceLogCallback(spdlog_tracelog_callback);
     SetTraceLogLevel(LOG_WARNING);
+}
+
+Window create(Config config) {
     InitWindow(config.width, config.height, config.title);
     SetTargetFPS(config.fps);
     return Window {.config = config};

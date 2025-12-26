@@ -1,7 +1,10 @@
+var Color = require("muen/Color");
+var graphics = require("muen/graphics");
+
 var Ball = require("Ball");
 
-function Game() {
-    console.log("Creating new game");
+module.exports = function Game() {
+    console.log("Creating Balls game!");
 
     this.config = {
         fps: 165,
@@ -16,7 +19,7 @@ function Game() {
         var x = Math.random() * (this.config.width - 30) + 15;
         var y = Math.random() * (this.config.height - 30) + 15;
         var angle = Math.random() * 360;
-        var color = new Color(randomByte(), randomByte(), randomByte())
+        var color = new Color(randomByte(), randomByte(), randomByte());
         this.balls.push(new Ball(x, y, angle, color));
     }
 
@@ -33,6 +36,8 @@ function Game() {
             this.balls[i].draw();
         }
     }
+
+    console.log("Game created!");
 }
 
 function randomByte() {

@@ -1,0 +1,28 @@
+#include "bindings.hpp"
+
+#include "bindings/console.hpp"
+#include "bindings/fs.hpp"
+#include "bindings/graphics.hpp"
+#include "bindings/screen.hpp"
+#include "bindings/globals.hpp"
+#include "js.hpp"
+
+namespace muen::bindings {
+
+auto define_global_function(js_State *j, void (*fun)(js_State *), const char *name, int length) -> void {
+    js::newcfunction(j, fun, name, length);
+    js::defglobal(j, name, js::READONLY | js::DONTCONF | js::DONTENUM);
+}
+
+auto define(js::State *j) -> void {
+    console::define(j);
+    fs::define(j);
+    graphics::define(j);
+    screen::define(j);
+
+    globals::define(j);
+}
+
+} // namespace muen::bindings
+
+using namespace muen;

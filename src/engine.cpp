@@ -2,28 +2,76 @@
 
 #include <spdlog/spdlog.h>
 
+#include "js.hpp"
+#include "bindings.hpp"
 #include "defer.hpp"
-#include "jsutil.h"
-#include "objects.hpp"
 #include "window.hpp"
 
-namespace engine {
+namespace muen::engine {
 
 Config read_config(Engine& self);
 
-Engine engine() {
-    auto js = mujs::Js::create();
-    return Engine {.js = js, .context = Context {}};
+Engine create() {
+    auto js = js::newstate(nullptr, nullptr, js::STRICT);
+    return Engine {.js = js};
 }
 
 void destroy(Engine& self) {
-    self.js.destroy();
+    js::freestate(self.js);
 }
 
 int run(Engine& self, const char *path) {
-    self.context.root_path = path;
-    self.js.set_context(static_cast<void *>(&self.context));
-    objects::define(self.js);
+    window::setup();
+
+    self.root_path = path;
+    self.modules = new std::unordered_map<std::string, std::string>{
+        {
+            "muen/globals.js",
+            {
+#include "globals.js.h"
+            }
+        },
+        {
+            "muen/screen.js",
+            {
+#include "screen.js.h"
+            }
+        },
+        {
+            "muen/Color.js",
+            {
+#include "Color.js.h"
+            }
+        },
+        {
+            "muen/graphics.js",
+            {
+#include "graphics.js.h"
+            }
+        },
+        {
+            "muen/Vector2.js",
+            {
+#include "Vector2.js.h"
+            }
+        },
+        {
+            "muen/Rectangle.js",
+            {
+#include "Rectangle.js.h"
+            }
+        },
+        {
+            "muen/Camera.js",
+            {
+#include "Camera.js.h"
+            }
+        }
+    };
+
+    js::setcontext(self.js, &self);
+
+    bindings::define(self.js);
 
     auto game_path = std::string {path};
     if (game_path[game_path.size() - 1] != '/') {
@@ -31,16 +79,26 @@ int run(Engine& self, const char *path) {
     }
     game_path += "Game.js";
 
+    Config config;
     try {
-        self.js.eval_file(game_path.c_str());
-        self.js.eval_string("var game = new Game();");
-        self.js.pop(1);
-    } catch (const mujs::Exception& e) {
+        mujs_catch(self.js);
+
+        js::pushstring(
+            self.js,
+            R"(
+            var Game = require("Game");
+            var game = new Game();
+            )"
+        );
+        js::eval(self.js);
+        js::pop(self.js, 1);
+        js::endtry(self.js);
+
+        config = read_config(self);
+    } catch (const js::Exception& e) {
         spdlog::error("Error initializing game: {}", e.what());
         return 1;
     }
-
-    auto config = read_config(self);
 
     auto w = window::create(
         window::Config {
@@ -53,19 +111,30 @@ int run(Engine& self, const char *path) {
     defer(window::close(w));
 
     try {
+        mujs_catch(self.js);
         while (!window::should_close(w)) {
-            self.js.eval_string("game.update()");
-            self.js.pop(1);
+            js::getglobal(self.js, "game");
+            js::getproperty(self.js, -1, "update");
+            js::rot2(self.js);
+            js::call(self.js, 0);
+            js::pop(self.js, 1);
+
             window::begin_drawing(w);
-            self.js.eval_string("game.draw()");
-            self.js.pop(1);
+
+            js::getglobal(self.js, "game");
+            js::getproperty(self.js, -1, "draw");
+            js::rot2(self.js);
+            js::call(self.js, 0);
+            js::pop(self.js, 1);
+
             window::draw_fps(w);
             window::end_drawing(w);
         }
-    } catch (mujs::Exception& e) {
+        js::endtry(self.js);
+    } catch (js::Exception& e) {
         spdlog::error("Error running game: {}", e.what());
         printf("\n");
-        ::js_dump(self.js.j);
+        js::dump(self.js);
         return 1;
     }
 
@@ -73,26 +142,38 @@ int run(Engine& self, const char *path) {
 }
 
 Config read_config(Engine& self) {
+    mujs_catch(self.js);
+
     auto config = Config {};
-    auto game_obj = self.js.get_global_object("game");
-    if (auto config_obj = game_obj.get_object("config")) {
-        if (auto fps = config_obj->get_integer("fps")) {
-            config.fps = *fps;
+    js::getglobal(self.js, "game");
+    if (js::hasproperty(self.js, -1, "config")) {
+        if (js::hasproperty(self.js, -1, "fps")) {
+            config.fps = js::tointeger(self.js, -1);
+            js::pop(self.js, 1);
         }
-        if (auto width = config_obj->get_integer("width")) {
-            config.width = *width;
+
+        if (js::hasproperty(self.js, -1, "width")) {
+            config.width = js::tointeger(self.js, -1);
+            js::pop(self.js, 1);
         }
-        if (auto height = config_obj->get_integer("height")) {
-            config.height = *height;
+
+        if (js::hasproperty(self.js, -1, "height")) {
+            config.height = js::tointeger(self.js, -1);
+            js::pop(self.js, 1);
         }
-        if (auto title = config_obj->get_string("title")) {
-            config.title = *title;
+
+        if (js::hasproperty(self.js, -1, "title")) {
+            config.title = js::tostring(self.js, -1);
+            js::pop(self.js, 1);
         }
-        config_obj->drop();
+
+        js::pop(self.js, 1);
     }
-    game_obj.drop();
+    js::pop(self.js, 1);
+
+    js::endtry(self.js);
 
     return config;
 }
 
-} // namespace engine
+} // namespace muen::engine
