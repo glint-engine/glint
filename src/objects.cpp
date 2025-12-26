@@ -30,11 +30,14 @@ void muen_screen_height(js_State *j);
 void muen_graphics_clear(js_State *j);
 void muen_graphics_circle(js_State *j);
 void muen_graphics_rectangle(js_State *j);
+void muen_graphics_begin_camera_mode(js_State *j);
+void muen_graphics_end_camera_mode(js_State *j);
 }
 
 Color js_tocolor(js_State *j, int idx);
 Vector2 js_tovector2(js_State *j, int idx);
 Rectangle js_torectangle(js_State *j, int idx);
+Camera2D js_tocamera(js_State *j, int idx);
 
 namespace objects {
 
@@ -62,6 +65,8 @@ void define(mujs::Js& js) {
         .define_method(muen_graphics_clear, "clear", 1, mujs::READONLY)
         .define_method(muen_graphics_circle, "circle", 4, mujs::READONLY)
         .define_method(muen_graphics_rectangle, "rectangle", 0, mujs::READONLY)
+        .define_method(muen_graphics_begin_camera_mode, "beginCameraMode", 1, mujs::READONLY)
+        .define_method(muen_graphics_end_camera_mode, "endCameraMode", 0, mujs::READONLY)
         .set_global("graphics");
 
     js.eval_string(
@@ -248,6 +253,19 @@ void muen_graphics_rectangle(js_State *j) {
     js_pushundefined(j);
 }
 
+void muen_graphics_begin_camera_mode(js_State *j) {
+    Camera2D camera {};
+    camera = js_tocamera(j, 1);
+
+    BeginMode2D(camera);
+    js_pushundefined(j);
+}
+
+void muen_graphics_end_camera_mode(js_State *j) {
+    EndMode2D();
+    js_pushundefined(j);
+}
+
 Color js_tocolor(js_State *j, int idx) {
     Color c;
 
@@ -304,4 +322,26 @@ Rectangle js_torectangle(js_State *j, int idx) {
     js_pop(j, 1);
 
     return r;
+}
+
+Camera2D js_tocamera(js_State *j, int idx) {
+    Camera2D c;
+
+    js_getproperty(j, idx, "offset");
+    c.offset = js_tovector2(j, -1);
+    js_pop(j, 1);
+
+    js_getproperty(j, idx, "target");
+    c.target = js_tovector2(j, -1);
+    js_pop(j, 1);
+
+    js_getproperty(j, idx, "rotation");
+    c.rotation = static_cast<float>(js_tonumber(j, -1));
+    js_pop(j, 1);
+
+    js_getproperty(j, idx, "zoom");
+    c.zoom = static_cast<float>(js_tonumber(j, -1));
+    js_pop(j, 1);
+
+    return c;
 }
