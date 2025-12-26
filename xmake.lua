@@ -1,4 +1,5 @@
 add_rules("mode.debug", "mode.release")
+add_rules("plugin.compile_commands.autoupdate", {outputdir = "build"})
 
 add_requires("mujs 1.3.7")
 add_requires("raylib 5.5")

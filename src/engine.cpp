@@ -9,9 +9,37 @@
 
 namespace muen::engine {
 
-Config read_config(Engine& self);
+constexpr char GLOBALS_JS[] = {
+#include "globals.js.h"
+};
 
-Engine create() {
+constexpr char SCREEN_JS[] = {
+#include "screen.js.h" 
+};
+
+constexpr char COLOR_JS[] = {
+#include "Color.js.h"
+};
+
+constexpr char GRAPHICS_JS[] = {
+#include "graphics.js.h"
+};
+
+constexpr char VECTOR2_JS[] = {
+#include "Vector2.js.h"
+};
+
+constexpr char RECTANGLE_JS[] = {
+#include "Rectangle.js.h"
+};
+
+constexpr char CAMERA_JS[] = {
+#include "Camera.js.h"
+};
+
+auto read_config(Engine& self) -> Config;
+
+auto create() -> Engine {
     auto js = js::newstate(nullptr, nullptr, js::STRICT);
     return Engine {.js = js};
 }
@@ -20,53 +48,18 @@ void destroy(Engine& self) {
     js::freestate(self.js);
 }
 
-int run(Engine& self, const char *path) {
+auto run(Engine& self, const char *path) -> int {
     window::setup();
 
     self.root_path = path;
-    self.modules = new std::unordered_map<std::string, std::string>{
-        {
-            "muen/globals.js",
-            {
-#include "globals.js.h"
-            }
-        },
-        {
-            "muen/screen.js",
-            {
-#include "screen.js.h"
-            }
-        },
-        {
-            "muen/Color.js",
-            {
-#include "Color.js.h"
-            }
-        },
-        {
-            "muen/graphics.js",
-            {
-#include "graphics.js.h"
-            }
-        },
-        {
-            "muen/Vector2.js",
-            {
-#include "Vector2.js.h"
-            }
-        },
-        {
-            "muen/Rectangle.js",
-            {
-#include "Rectangle.js.h"
-            }
-        },
-        {
-            "muen/Camera.js",
-            {
-#include "Camera.js.h"
-            }
-        }
+    self.muen_modules = {
+        {"muen/Camera.js", CAMERA_JS},
+        {"muen/Color.js", COLOR_JS},
+        {"muen/Rectangle.js", RECTANGLE_JS},
+        {"muen/Vector2.js", VECTOR2_JS},
+        {"muen/globals.js", GLOBALS_JS},
+        {"muen/graphics.js", GRAPHICS_JS},
+        {"muen/screen.js", SCREEN_JS},
     };
 
     js::setcontext(self.js, &self);
@@ -132,8 +125,7 @@ int run(Engine& self, const char *path) {
         }
         js::endtry(self.js);
     } catch (js::Exception& e) {
-        spdlog::error("Error running game: {}", e.what());
-        printf("\n");
+        spdlog::error("Error running game: {}\n", e.what());
         js::dump(self.js);
         return 1;
     }
@@ -141,7 +133,7 @@ int run(Engine& self, const char *path) {
     return 0;
 }
 
-Config read_config(Engine& self) {
+auto read_config(Engine& self) -> Config {
     mujs_catch(self.js);
 
     auto config = Config {};

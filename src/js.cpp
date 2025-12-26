@@ -4,6 +4,10 @@
 
 namespace muen::js {
 
+auto tofloat(State *j, int idx) -> float {
+    return static_cast<float>(tonumber(j, idx));
+}
+
 auto eval_file(State *j, const char *path) -> void {
     js::loadfile(j, path);
     js::pushundefined(j);
@@ -24,7 +28,7 @@ Exception::Exception(js_State *j) {
     this->message = std::format("{}\nStack trace:{}", desc, stack);
 }
 
-const char *Exception::what() const noexcept {
+auto Exception::what() const noexcept -> const char * {
     return this->message.c_str();
 }
 

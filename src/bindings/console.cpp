@@ -15,11 +15,11 @@ using spdlog::level::level_enum;
 auto log(js_State *J, level_enum level) -> void;
 
 auto define(js::State *j) -> void {
-    define_global_function(j, [](js::State *j) { log(j, level_enum::trace); }, "__muenConsoleTrace");
-    define_global_function(j, [](js::State *j) { log(j, level_enum::debug); }, "__muenConsoleDebug");
-    define_global_function(j, [](js::State *j) { log(j, level_enum::info); }, "__muenConsoleLog");
-    define_global_function(j, [](js::State *j) { log(j, level_enum::warn); }, "__muenConsoleWarn");
-    define_global_function(j, [](js::State *j) { log(j, level_enum::err); }, "__muenConsoleError");
+    define_global_function(j, [](js::State *j) -> void { log(j, level_enum::trace); }, "__muenConsoleTrace");
+    define_global_function(j, [](js::State *j) -> void { log(j, level_enum::debug); }, "__muenConsoleDebug");
+    define_global_function(j, [](js::State *j) -> void { log(j, level_enum::info); }, "__muenConsoleLog");
+    define_global_function(j, [](js::State *j) -> void { log(j, level_enum::warn); }, "__muenConsoleWarn");
+    define_global_function(j, [](js::State *j) -> void { log(j, level_enum::err); }, "__muenConsoleError");
 }
 
 auto log(js_State *J, level_enum level) -> void {

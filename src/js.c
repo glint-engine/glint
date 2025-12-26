@@ -10,9 +10,8 @@ void js_dump(js_State *j) {
 }
 
 void js_dumpstack(js_State *J) {
-    int i;
     printf("stack {\n");
-    for (i = 0; i < J->top; ++i) {
+    for (int i = 0; i < J->top; ++i) {
         putchar(i == J->bot ? '>' : ' ');
         printf("%4d: ", i);
         js_dumpvalue(J, J->stack[i]);
@@ -22,11 +21,11 @@ void js_dumpstack(js_State *J) {
 }
 
 void js_create_function(js_State *J, const char *source) {
-    int i, top = js_gettop(J);
+    int top = js_gettop(J);
     js_Buffer *sb = NULL;
-    const char *body;
-    js_Ast *parse;
-    js_Function *fun;
+    const char *body = NULL;
+    js_Ast *parse = NULL;
+    js_Function *fun = NULL;
 
     if (js_try(J)) {
         js_free(J, sb);
@@ -36,7 +35,7 @@ void js_create_function(js_State *J, const char *source) {
 
     /* p1, p2, ..., pn */
     if (top > 2) {
-        for (i = 1; i < top - 1; ++i) {
+        for (int i = 1; i < top - 1; ++i) {
             if (i > 1)
                 js_putc(J, &sb, ',');
             js_puts(J, &sb, js_tostring(J, i));
@@ -133,6 +132,9 @@ static void js_dumpvalue(js_State *J, js_Value v) {
                     printf("[Object %p]", (void *)v.u.object);
                     break;
             }
+            break;
+        default:
+            printf("[Object %p]", (void *)v.u.object);
             break;
     }
 }

@@ -30,11 +30,11 @@ auto tovector2(js::State *j, int idx) -> ::Vector2 {
     ::Vector2 v;
 
     js::getproperty(j, idx, "x");
-    v.x = js::tointeger(j, -1);
+    v.x = js::tofloat(j, -1);
     js::pop(j, 1);
 
     js::getproperty(j, idx, "y");
-    v.y = js::tointeger(j, -1);
+    v.y = js::tofloat(j, -1);
     js::pop(j, 1);
 
     return v;
@@ -44,19 +44,19 @@ auto torectangle(js_State *j, int idx) -> ::Rectangle {
     ::Rectangle r;
 
     js::getproperty(j, idx, "x");
-    r.x = js::tointeger(j, -1);
+    r.x = js::tofloat(j, -1);
     js::pop(j, 1);
 
     js::getproperty(j, idx, "y");
-    r.y = js::tointeger(j, -1);
+    r.y = js::tofloat(j, -1);
     js::pop(j, 1);
 
     js::getproperty(j, idx, "width");
-    r.width = js::tointeger(j, -1);
+    r.width = js::tofloat(j, -1);
     js::pop(j, 1);
 
     js::getproperty(j, idx, "height");
-    r.height = js::tointeger(j, -1);
+    r.height = js::tofloat(j, -1);
     js::pop(j, 1);
 
     return r;
@@ -74,11 +74,11 @@ auto tocamera(js_State *j, int idx) -> ::Camera2D {
     js::pop(j, 1);
 
     js::getproperty(j, idx, "rotation");
-    c.rotation = static_cast<float>(js::tonumber(j, -1));
+    c.rotation = js::tofloat(j, -1);
     js::pop(j, 1);
 
     js::getproperty(j, idx, "zoom");
-    c.zoom = static_cast<float>(js::tonumber(j, -1));
+    c.zoom = js::tofloat(j, -1);
     js::pop(j, 1);
 
     return c;

@@ -17,13 +17,13 @@ struct Config {
 struct Engine {
     js::State *js;
     const char *root_path;
-    std::unordered_map<std::string, std::string> *modules;
+    std::unordered_map<std::string, std::string> muen_modules;
 };
 
-Engine create();
+auto create() -> Engine;
 
 void destroy(Engine& window);
 
-int run(Engine& self, const char *path);
+auto run(Engine& self, const char *path) -> int;
 
 } // namespace muen::engine

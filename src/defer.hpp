@@ -1,7 +1,7 @@
 #pragma once
 
 template<typename F>
-struct privDefer {
+struct privDefer { // NOLINT
     F f;
 
     privDefer(F f) : f(f) {}
@@ -12,11 +12,11 @@ struct privDefer {
 };
 
 template<typename F>
-privDefer<F> defer_func(F f) {
+auto defer_func(F f) -> privDefer<F> {
     return privDefer<F>(f);
 }
 
 #define DEFER_1(x, y) x##y
-#define DEFER_2(x, y) DEFER_1(x, y)
-#define DEFER_3(x) DEFER_2(x, __COUNTER__)
-#define defer(code) auto DEFER_3(_defer_) = defer_func([&]() { code; })
+#define DEFER_2(x, y) DEFER_1(x, y) // NOLINT
+#define DEFER_3(x) DEFER_2(x, __COUNTER__) // NOLINT
+#define defer(code) auto DEFER_3(_defer_) = defer_func([&]() { code; }) // NOLINT

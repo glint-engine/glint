@@ -1,5 +1,6 @@
 #include "fs.hpp"
 
+#include <cstring>
 #include <cassert>
 #include <fstream>
 #include <sstream>
@@ -15,10 +16,10 @@ namespace muen::bindings::fs {
 auto define(js::State *j) -> void {
     define_global_function(
         j,
-        [](js::State *j) {
+        [](js::State *j) -> void {
             const char *file_path = js::tostring(j, 1);
 
-            engine::Engine *e = static_cast<engine::Engine *>(js::getcontext(j));
+            auto *e = static_cast<engine::Engine *>(js::getcontext(j));
             auto path = std::string {e->root_path};
             if (path[path.size() - 1] != '/') {
                 path.push_back('/');
@@ -42,16 +43,15 @@ auto define(js::State *j) -> void {
 
     define_global_function(
         j,
-        [](js::State *j) {
+        [](js::State *j) -> void {
             // NOTE: leaking some memory here
             const char *file_path = strdup(js::tostring(j, 1));
 
-            engine::Engine *e = static_cast<engine::Engine *>(js::getcontext(j));
-            assert(e->modules != nullptr);
+            auto *e = static_cast<engine::Engine *>(js::getcontext(j));
 
             auto buf = std::stringstream {};
 
-            if (auto m = e->modules->find(file_path); m != e->modules->end()) {
+            if (auto m = e->muen_modules.find(file_path); m != e->muen_modules.end()) {
                 buf << m->second;
             } else {
                 auto path = std::string {e->root_path};

@@ -15,10 +15,10 @@ struct Window {
 
 auto setup() -> void;
 auto create(Config config) -> Window;
-void close(Window& self);
-bool should_close(Window& self);
-void begin_drawing(Window& self);
-void end_drawing(Window& self);
-void draw_fps(Window& self);
+auto close(Window& self) -> void;
+auto should_close(Window& self) -> bool;
+auto begin_drawing(Window& self) -> void;
+auto end_drawing(Window& self) -> void;
+auto draw_fps(Window& self) -> void;
 
 } // namespace window

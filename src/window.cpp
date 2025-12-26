@@ -12,39 +12,40 @@ auto setup() -> void {
     SetTraceLogLevel(LOG_WARNING);
 }
 
-Window create(Config config) {
+auto create(Config config) -> Window {
     InitWindow(config.width, config.height, config.title);
     SetTargetFPS(config.fps);
     return Window {.config = config};
 }
 
-void close(Window& self) {
+auto close(Window& self) -> void {
     CloseWindow();
 }
 
-bool should_close(Window& self) {
+auto should_close(Window& self) -> bool {
     return WindowShouldClose();
 }
 
-void begin_drawing(Window& self) {
+auto begin_drawing(Window& self) -> void {
     BeginDrawing();
 }
 
-void end_drawing(Window& self) {
+auto end_drawing(Window& self) -> void {
     EndDrawing();
 }
 
-void draw_fps(Window& self) {
+auto draw_fps(Window& self) -> void {
     DrawFPS(15, 15);
 }
 
+// NOLINTBEGIN
 void spdlog_tracelog_callback(int logLevel, const char *text, va_list args) {
     constexpr auto bufLen = 128;
-    char buf[bufLen];
-    char *message = buf;
+    auto buf = std::array<char, bufLen> {};
+    char *message = buf.data();
     bool dynamicMem = false;
 
-    va_list args_copy;
+    va_list args_copy; // NOLINT
     va_copy(args_copy, args);
     auto messageSize = vsnprintf(nullptr, 0, text, args_copy) + 1;
     va_end(args_copy);
@@ -70,16 +71,18 @@ void spdlog_tracelog_callback(int logLevel, const char *text, va_list args) {
             spdlog::warn(message);
             break;
         case LOG_ERROR:
-            spdlog::error(message);
-            break;
         case LOG_FATAL:
             spdlog::error(message);
             break;
+        default:
+            abort();
     }
 
     if (dynamicMem) {
         delete[] message;
     }
 }
+
+// NOLINTEND
 
 } // namespace window

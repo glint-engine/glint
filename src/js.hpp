@@ -1,13 +1,16 @@
 #pragma once
 
+#include <cstdint>
+
 extern "C" {
 #include "js.h"
 }
 
-#include <mujs.h>
+#include <mujs.h> // NOLINT
 
+// NOLINTNEXTLINE
 #define mujs_catch(j)                                                                                                  \
-    if (setjmp(*((jmp_buf *)js::savetry(j)))) {                                                                        \
+    if (auto& buf = *(static_cast<jmp_buf *>(js::savetry(j))); setjmp(buf)) {                                          \
         throw js::Exception(j);                                                                                        \
     }
 
@@ -61,7 +64,7 @@ constexpr auto READONLY = 1;
 constexpr auto DONTENUM = 2;
 constexpr auto DONTCONF = 4;
 
-enum class Type {
+enum class Type : std::uint8_t {
     Undefined = JS_ISUNDEFINED,
     Null = JS_ISNULL,
     Boolean = JS_ISBOOLEAN,
@@ -216,13 +219,14 @@ constexpr auto tryrepr = ::js_tryrepr;
 constexpr auto dump = ::js_dump;
 constexpr auto create_function = ::js_create_function;
 
+auto tofloat(State *j, int idx) -> float;
 auto eval_file(State *j, const char *path) -> void;
 
 struct Exception: public std::exception {
     std::string message;
 
     Exception(::js_State *j);
-    const char *what() const noexcept override;
+    [[nodiscard]] auto what() const noexcept -> const char * override;
 };
 
 } // namespace muen::js
