@@ -1,23 +1,25 @@
-module.exports = function Rectangle() {
+function Rectangle() {
     if (arguments.length === 0) {
         this.x = 0;
         this.y = 0;
         this.width = 0;
         this.height = 0;
-
     } else if (arguments.length === 4) {
-        var x = arguments[0];
-        var y = arguments[1];
-        var width = arguments[2];
-        var height = arguments[3];
-        if (typeof x !== 'number' || typeof y !== 'number' || typeof width !== 'number' || typeof height !== 'number') {
+        if (
+            typeof arguments[0] !== "number" ||
+            typeof arguments[1] !== "number" ||
+            typeof arguments[2] !== "number" ||
+            typeof arguments[3] !== "number"
+        ) {
             throw TypeError("Invalid arguments for Rectangle");
         }
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        this.x = arguments[0];
+        this.y = arguments[1];
+        this.width = arguments[2];
+        this.height = arguments[3];
     } else {
-        throw TypeError("Invalid arguments for Rectangle")
+        throw TypeError("Invalid arguments for Rectangle");
     }
 }
+
+module.exports = Rectangle;

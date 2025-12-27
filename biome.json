@@ -1,0 +1,30 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.3.10/schema.json",
+  "files": {},
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 4,
+    "lineWidth": 120,
+    "enabled": true,
+    "includes": ["./*.json", "./examples/**/*.js", "./muen2djs/**/*.js", "./muen2djs/**/*.d.ts"]
+  },
+  "linter": {
+    "enabled": true,
+    "includes": ["./muen2djs/**/*.js", "./muen2djs/**/*.d.ts"],
+    "rules": {
+      "complexity": {
+        "useArrowFunction": "off",
+        "noArguments": "off"
+      }
+    }
+  },
+  "assist": {
+    "enabled": false
+  },
+  "json": {
+    "formatter": {
+      "indentWidth": 2,
+      "trailingCommas": "none"
+    }
+  }
+}

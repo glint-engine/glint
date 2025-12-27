@@ -2,13 +2,13 @@ function Screen() {
     Object.defineProperty(this, "dt", {
         enumerable: false,
         configurable: false,
-        get: function() {
+        get: function () {
             return __muenScreenDt();
         },
     });
 
     Object.defineProperty(this, "width", {
-        get: function() {
+        get: function () {
             return __muenScreenWidth();
         },
         enumerable: false,
@@ -16,7 +16,7 @@ function Screen() {
     });
 
     Object.defineProperty(this, "height", {
-        get: function() {
+        get: function () {
             return __muenScreenHeight();
         },
         enumerable: false,

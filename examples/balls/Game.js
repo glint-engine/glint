@@ -1,9 +1,9 @@
 var Color = require("muen/Color");
 var graphics = require("muen/graphics");
 
-var Ball = require("Ball");
+var Ball = require("./Ball");
 
-module.exports = function Game() {
+function Game() {
     console.log("Creating Balls game!");
 
     this.config = {
@@ -23,23 +23,24 @@ module.exports = function Game() {
         this.balls.push(new Ball(x, y, angle, color));
     }
 
-
-    this.update = function() {
-        for (var i = 0; i < this.balls.length; i++) {
-            this.balls[i].update();
-        }
-    }
-
-    this.draw = function() {
-        graphics.clear(this.bgColor);
-        for (var i = 0; i < this.balls.length; i++) {
-            this.balls[i].draw();
-        }
-    }
-
     console.log("Game created!");
 }
+
+Game.prototype.update = function () {
+    for (var i = 0; i < this.balls.length; i++) {
+        this.balls[i].update();
+    }
+};
+
+Game.prototype.draw = function () {
+    graphics.clear(this.bgColor);
+    for (var i = 0; i < this.balls.length; i++) {
+        this.balls[i].draw();
+    }
+};
 
 function randomByte() {
     return Math.floor(Math.random() * 256);
 }
+
+module.exports = Game;

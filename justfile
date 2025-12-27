@@ -1,9 +1,10 @@
 configure:
     xmake config --mode=debug
-    # xmake project -k compile_commands
+    npm install
 
 check:
     xmake check clang.tidy --quiet
+    npm run lint
 
 build:
     xmake build muen
@@ -13,4 +14,5 @@ run game:
 
 format:
     xmake format
+    npm run format
 
