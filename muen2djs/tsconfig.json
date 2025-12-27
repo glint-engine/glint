@@ -1,23 +1,22 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "allowJs": false,
-    "checkJs": false,
+    "allowJs": true,
+    "checkJs": true,
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
     "strictPropertyInitialization": true,
+    "verbatimModuleSyntax": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "module": "commonjs",
     "baseUrl": ".",
     "types": [],
     "paths": {
-      "muen/*": [
-        "./*.d.ts"
-      ]
+      "muen/*": [ "./*.js" ]
     }
   },
   "include": [

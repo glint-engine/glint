@@ -15,6 +15,10 @@
       "complexity": {
         "useArrowFunction": "off",
         "noArguments": "off"
+      },
+      "suspicious": {
+        "noTsIgnore": "off",
+        "noExplicitAny": "off"
       }
     }
   },

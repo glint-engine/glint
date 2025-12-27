@@ -1,4 +1,48 @@
 /**
+ * @module muen/Color
+ */
+module.exports = Color;
+
+/**
+ * @constructor
+ * @class
+ * @param {number} r
+ * @param {number} g
+ * @param {number} b
+ * @param {number} [a=255]
+ */
+function Color(r, g, b, a) {
+    /** @type {number} */
+    this.r = assertByte(r);
+
+    /** @type {number} */
+    this.g = assertByte(g);
+
+    /** @type {number} */
+    this.b = assertByte(b);
+
+    /** @type {number} */
+    this.a = a ? assertByte(a) : 255;
+}
+
+/**
+ * @param {string} code
+ * @returns {Color}
+ */
+Color.fromHex = function (code) {
+    if (typeof code !== "string" || (code.length !== 7 && code.length !== 9) || code[0] !== "#") {
+        throw TypeError("Invalid arguments for Color");
+    }
+
+    var r = parseByte(code, 1);
+    var g = parseByte(code, 3);
+    var b = parseByte(code, 5);
+    var a = code.length === 9 ? parseByte(code, 7) : 255;
+
+    return new Color(r, g, b, a);
+};
+
+/**
  * @param {string} s
  * @param {number} i
  * @return {number}
@@ -22,27 +66,3 @@ function assertByte(n) {
 
     return n;
 }
-
-function Color() {
-    var str = arguments[0];
-
-    if (arguments.length === 1) {
-        if (typeof str !== "string" || (str.length !== 7 && str.length !== 9) || str[0] !== "#") {
-            throw TypeError("Invalid arguments for Color");
-        }
-
-        this.r = parseByte(str, 1);
-        this.g = parseByte(str, 3);
-        this.b = parseByte(str, 5);
-        this.a = str.length === 9 ? parseByte(str, 7) : 255;
-    } else if (arguments.length === 3 || arguments.length === 4) {
-        this.r = assertByte(arguments[0]);
-        this.g = assertByte(arguments[1]);
-        this.b = assertByte(arguments[2]);
-        this.a = arguments.length === 4 ? assertByte(arguments[3]) : 255;
-    } else {
-        throw TypeError("Invalid arguments for Color");
-    }
-}
-
-module.exports = Color;

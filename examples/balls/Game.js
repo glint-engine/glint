@@ -13,7 +13,7 @@ function Game() {
         title: "Balls",
     };
 
-    this.bgColor = new Color("#181818");
+    this.bgColor = Color.fromHex("#181818");
     this.balls = [];
     for (var i = 1; i < 500; i++) {
         var x = Math.random() * (this.config.width - 30) + 15;

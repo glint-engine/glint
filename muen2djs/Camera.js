@@ -1,22 +1,47 @@
 var Vector2 = require("muen/Vector2");
 
-function Camera() {
-    if (arguments.length === 0) {
-        this.offset = new Vector2();
-        this.target = new Vector2();
-        this.rotation = 0;
-        this.zoom = 1;
-    } else if (arguments.length === 4) {
-        if (typeof arguments[2] !== "number" || typeof arguments[3] !== "number") {
-            throw TypeError("Invalid arguments for Camera");
-        }
-        this.offset = new Vector2(arguments[0].x, arguments[0].y);
-        this.target = new Vector2(arguments[1].x, arguments[1].y);
-        this.rotation = arguments[2];
-        this.zoom = arguments[3];
-    } else {
+/**
+ * @module muen/Camera
+ */
+module.exports = Camera;
+
+/**
+ * Represents two-dimensional camera
+ * @constructor
+ * @class
+ * @param {Vector2} offset
+ * @param {Vector2} target
+ * @param {number} rotation
+ * @param {number} zoom
+ */
+function Camera(offset, target, rotation, zoom) {
+    if (
+        !(offset instanceof Vector2) ||
+        !(target instanceof Vector2) ||
+        typeof rotation !== "number" ||
+        typeof zoom !== "number"
+    ) {
         throw TypeError("Invalid arguments for Camera");
     }
+
+    /** @type {Vector2} */
+    this.offset = offset.clone();
+
+    /** @type {Vector2} */
+    this.target = target.clone();
+
+    /** @type {number} */
+    this.rotation = rotation;
+
+    /** @type {number} */
+    this.zoom = zoom;
 }
 
-module.exports = Camera;
+/**
+ * Constructs camera with default parameters
+ * @static
+ * @returns {Camera}
+ */
+Camera.default = function () {
+    return new Camera(Vector2.zero(), Vector2.zero(), 0, 1);
+};
