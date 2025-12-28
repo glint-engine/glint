@@ -16,6 +16,12 @@ auto define(js::State *j) -> void {
 
     define_global_function(
         j,
+        [](js::State *j) -> void { js::pushnumber(j, static_cast<double>(::GetTime())); },
+        "__muenScreenTime"
+    );
+
+    define_global_function(
+        j,
         [](js::State *j) -> void { js::pushnumber(j, static_cast<double>(::GetScreenWidth())); },
         "__muenScreenWidth"
     );

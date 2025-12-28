@@ -1,58 +1,26 @@
 /**
- * @class
- * Represents color as 32-bit RGBA object
- *
- * @example
- * var Color = require("muen/Color");
- * var graphics = require("muen/graphics");
- *
- * var green = new Color("#22a822");
- * graphics.clear(green);
- *
  * @constructor
- * @param {number} r Color red value
- * @param {number} g Color green value
- * @param {number} b Color blue value
- * @param {number} [a=255] Color alpha value
+ * @param {number} r
+ * @param {number} g
+ * @param {number} b
+ * @param {number | undefined} a
  */
 function Color(r, g, b, a) {
-    /**
-     * Color red value
-     * @type {number}
-     */
+    /** @type {number} */
     this.r = assertByte(r);
 
-    /**
-     * Color green value
-     * @type {number}
-     */
+    /** @type {number} */
     this.g = assertByte(g);
 
-    /**
-     * Color green blue
-     * @type {number}
-     */
+    /** @type {number} */
     this.b = assertByte(b);
 
-    /**
-     * Color alpha blue
-     * @type {number}
-     */
+    /** @type {number} */
     this.a = a ? assertByte(a) : 255;
 }
 
 /**
- * Creates new instance of Color from hexadecimal string formatted as
- * `"#rrggbb"` or `"#rrggbbaa"`.
- *
- * @example
- * // Equivalent to new Color(18, 52, 86);
- * var color = Color.fromHex("#123456");
- *
- * // Equivalent to new Color(255, 170, 68, 128);
- * var color = Color.fromHex("#ffaa4480");
- *
- * @param {string} code hexadecimal string
+ * @param {string} code
  * @returns {Color}
  */
 Color.fromHex = function (code) {

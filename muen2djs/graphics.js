@@ -1,74 +1,90 @@
 /**
  * @namespace
  */
-var graphics = {
+var graphics = Object.create({
     /**
-     * @function
      * @param {Color} color
-     * @returns {void}
-     */ // @ts-ignore
-    clear: __muenGraphicsClear,
+     * @returns {typeof graphics}
+     */
+    clear: function (color) {
+        __muenGraphicsClear(color);
+        return this;
+    },
 
     /**
-     * @function
      * @param {number} x
      * @param {number} y
      * @param {number} radius
      * @param {Color} color
-     * @returns {void}
-     */ // @ts-ignore
-    circle: __muenGraphicsCircle,
+     * @returns {typeof graphics}
+     */
+    circle: function (x, y, radius, color) {
+        __muenGraphicsCircle(x, y, radius, color);
+        return this;
+    },
 
     /**
-     * @function
      * @param {number} x
      * @param {number} y
      * @param {number} width
      * @param {number} height
      * @param {Color} color
-     * @returns {void}
-     */ // @ts-ignore
-    rectangle: __muenGraphicsRectangle,
+     * @returns {typeof graphics}
+     */
+    rectangle: function (x, y, width, height, color) {
+        __muenGraphicsRectangle(x, y, width, height, color);
+        return this;
+    },
 
     /**
-     * @function
      * @param {Vector2} position
      * @param {Vector2} size
      * @param {Color} color
-     * @returns {void}
-     */ // @ts-ignore
-    rectangleV: __muenGraphicsRectangle,
+     * @returns {typeof graphics}
+     */
+    rectangleV: function (position, size, color) {
+        __muenGraphicsRectangleV(position, size, color);
+        return this;
+    },
 
     /**
-     * @function
      * @param {Rectangle} rectangle
      * @param {Color} color
-     * @returns {void}
-     */ // @ts-ignore
-    rectangleRec: __muenGraphicsRectangle,
+     * @returns {typeof graphics}
+     */
+    rectangleRec: function (rectangle, color) {
+        __muenGraphicsRectangleRec(rectangle, color);
+        return this;
+    },
 
     /**
-     * @function
-     * @param {Rectangle} rectangle
+     * @param {Rectangle} rec
      * @param {Vector2} origin
      * @param {number} rotation
      * @param {Color} color
-     * @returns {void}
+     * @returns {typeof graphics}
      */ // @ts-ignore
-    rectanglePro: __muenGraphicsRectangle,
+    rectanglePro: function (rec, origin, rotation, color) {
+        __muenGraphicsRectanglePro(rec, origin, rotation, color);
+        return this;
+    },
 
     /**
-     * @function
      * @param {Camera} camera
-     * @returns {void}
+     * @returns {typeof graphics}
      */ // @ts-ignore
-    beginCameraMode: __muenGraphicsBeginCameraMode,
+    beginCameraMode: function (camera) {
+        __muenGraphicsBeginCameraMode(camera);
+        return this;
+    },
 
     /**
-     * @function
-     * @returns {void}
+     * @returns {typeof graphics}
      */ // @ts-ignore
-    endCameraMode: __muenGraphicsEndCameraMode,
-};
+    endCameraMode: function () {
+        __muenGraphicsEndCameraMode();
+        return this;
+    },
+});
 
 module.exports = Object.freeze(graphics);

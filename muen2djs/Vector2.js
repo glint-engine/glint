@@ -1,32 +1,22 @@
 /**
  * @class
- * Represents 2-dimensional vector {x,y}
- *
  * @constructor
- * @param {number} x Vector x component
- * @param {number} y Vector y component
+ * @param {number} x
+ * @param {number} y
  */
 function Vector2(x, y) {
     if (typeof x !== "number" || typeof y !== "number") {
         throw TypeError("Invalid arguments for Vector2");
     }
 
-    /**
-     * Vector x component
-     * @type {number}
-     */
+    /** @type {number} */
     this.x = x;
 
-    /**
-     * Vector y component
-     * @type {number}
-     */
+    /** @type {number} */
     this.y = y;
 }
 
 /**
- * Creates zero initialized Vector2
- * @static
  * @returns {Vector2}
  */
 Vector2.zero = function () {
@@ -34,7 +24,6 @@ Vector2.zero = function () {
 };
 
 /**
- * Clones vector creating new instance
  * @returns {Vector2}
  */
 Vector2.prototype.clone = function () {

@@ -1,5 +1,7 @@
 #include "window.hpp"
 
+#include <array>
+
 #include <raylib.h>
 #include <spdlog/spdlog.h>
 

@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include "audio.hpp"
 #include "js.hpp"
 #include "bindings.hpp"
 #include "defer.hpp"
@@ -16,7 +17,7 @@ constexpr char COLOR_JS[] = {
 #include "Color.js.h" 
 };
 constexpr char CONSOLE_JS[] = {
-#include "Console.js.h" 
+#include "console.js.h" 
 };
 constexpr char GRAPHICS_JS[] = {
 #include "graphics.js.h" 
@@ -26,6 +27,9 @@ constexpr char RECTANGLE_JS[] = {
 };
 constexpr char SCREEN_JS[] = {
 #include "screen.js.h" 
+};
+constexpr char SOUND_JS[] = {
+#include "Sound.js.h"
 };
 constexpr char VECTOR2_JS[] = {
 #include "Vector2.js.h" 
@@ -49,8 +53,9 @@ auto run(Engine& self, const char *path) -> int {
     self.muen_modules = {
         {"muen/Camera.js", CAMERA_JS},
         {"muen/Color.js", COLOR_JS},
-        {"muen/Console.js", CONSOLE_JS},
+        {"muen/console.js", CONSOLE_JS},
         {"muen/Rectangle.js", RECTANGLE_JS},
+        {"muen/Sound.js", SOUND_JS},
         {"muen/Vector2.js", VECTOR2_JS},
         {"muen/graphics.js", GRAPHICS_JS},
         {"muen/screen.js", SCREEN_JS},
@@ -125,6 +130,44 @@ auto run(Engine& self, const char *path) -> int {
     }
 
     return 0;
+}
+
+auto is_audio_ready(Engine& self) -> bool {
+    return ::IsAudioDeviceReady();
+}
+
+auto load_sound(Engine& self, std::string path) -> std::expected<uint32_t, std::string> {
+    static std::atomic_uint32_t id_counter = 1;
+
+    if (auto search = self.sounds_cache.find(path); search != self.sounds_cache.end()) {
+        return search->second;
+    }
+
+    auto id = id_counter++;
+    auto sound = audio::sound::load(path);
+    if (!sound.has_value()) {
+        return std::unexpected(sound.error());
+    }
+
+    self.sounds.insert({id, sound.value()});
+    self.sounds_cache.insert({std::move(path), id});
+    return id;
+}
+
+auto unload_sound(Engine& self, uint32_t id) -> void {
+    if (auto it = self.sounds.find(id); it != self.sounds.end()) {
+        auto sound = it->second;
+        self.sounds.erase(it);
+        audio::sound::unload(sound);
+    }
+}
+
+auto get_sound(Engine& self, uint32_t id) -> std::optional<audio::Sound> {
+    if (auto it = self.sounds.find(id); it != self.sounds.end()) {
+        return it->second;
+    } else {
+        return std::nullopt;
+    }
 }
 
 auto read_config(Engine& self) -> Config {

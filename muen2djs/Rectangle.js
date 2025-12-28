@@ -1,9 +1,6 @@
 var Vector2 = require("muen/Vector2");
 
 /**
- * @class
- * Rectangle, 4 components
- *
  * @constructor
  * @param {number} x
  * @param {number} y
@@ -15,33 +12,20 @@ function Rectangle(x, y, width, height) {
         throw TypeError("Invalid arguments for Rectangle");
     }
 
-    /**
-     * Rectangle top-left corner position x
-     * @type {number}
-     */
+    /** @type {number} */
     this.x = x;
 
-    /**
-     * Rectangle top-left corner position y
-     * @type {number}
-     */
+    /** @type {number} */
     this.y = y;
 
-    /**
-     * Rectangle width
-     * @type {number}
-     */
+    /** @type {number} */
     this.width = width;
 
-    /**
-     * Rectangle height
-     * @type {number}
-     */
+    /** @type {number} */
     this.height = height;
 }
 
 /**
- * Creates zero initialized rectangle
  * @returns {Rectangle}
  */
 Rectangle.zero = function () {
@@ -49,7 +33,6 @@ Rectangle.zero = function () {
 };
 
 /**
- * Creates vector with top-left corner set to `position` and size set to `size`
  * @param {Vector2} position
  * @param {Vector2} size
  */

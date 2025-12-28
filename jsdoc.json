@@ -2,7 +2,7 @@
   "plugins": ["node_modules/jsdoc-tsimport-plugin", "plugins/markdown"],
   "source": {
     "include": ["./muen2djs/", "README.md"],
-    "includePattern": ".+\\.js$",
+    "includePattern": ".+\\.(js|d\\.ts)$",
     "excludePattern": "(node_modules/|docs/)"
   },
   "opts": {

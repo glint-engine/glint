@@ -1,0 +1,63 @@
+name: Build engine
+
+on:
+  - push
+
+jobs:
+  build:
+    concurrency:
+      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-${{ matrix.os }}-build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
+          - windows-latest
+          - windows-11-arm
+          - macOS-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libxinerama-dev \
+            libxcursor-dev
+
+      - uses: xmake-io/github-action-setup-xmake@master
+        with:
+          actions-cache-folder: '.xmake-cache'
+          actions-cache-key: xmake
+          build-cache: true
+          build-cache-key: xmake
+          package-cache: true
+          package-cache-key: xmake
+          project-path: 'tests/sample'
+
+      - name: Build engine
+        run: |
+          xmake --version
+          xmake -y -v
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: muen-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            build/linux/x86_64/release/muen
+            build/linux/arm64/release/muen
+            build/windows/x64/release/muen.exe
+            build/windows/arm64/release/muen.exe
+            build/macosx/arm64/release/muen

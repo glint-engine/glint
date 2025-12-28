@@ -1,6 +1,10 @@
-import Console = require("muen/Console");
+/**
+ * @module
+ * @hidden
+ */
 
-declare global {
-    function require(name: string): any;
-    const console: Console;
-}
+/** @hidden */
+declare function require(name: string): any;
+
+/** @hidden */
+declare const console: console;

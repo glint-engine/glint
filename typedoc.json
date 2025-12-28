@@ -1,0 +1,16 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "muen2d",
+  "githubPages": true,
+  "entryPoints": ["./muen2djs/index.d.ts"],
+  "out": "docs",
+  "tsconfig": "./tsconfig.docs.json",
+  "excludeExternals": false,
+  "excludeNotDocumented": false,
+  "excludeInternal": true,
+  "sort": ["kind", "instance-first"],
+  "disableSources": false,
+  "plugin": ["typedoc-material-theme", "typedoc-plugin-merge-modules"],
+  "mergeModulesMergeMode": "module-category",
+  "themeColor": "#ad8ef5"
+}

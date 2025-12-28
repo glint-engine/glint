@@ -10,10 +10,14 @@
     "verbatimModuleSyntax": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "types": [],
     "paths": {
-      "muen/*": [ "./*.js" ]
+      "muen/*": [
+        "./*.js"
+      ]
     }
   },
   "include": [

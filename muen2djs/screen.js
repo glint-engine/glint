@@ -1,36 +1,38 @@
-/**
- * @namespace screen
- * @property {number} dt Time since last frame in seconds
- * @property {number} width Width of the game screen
- * @property {number} height Height of the game screen
- */
-var screen = {};
+var screen = Object.create(
+    {},
+    {
+        dt: {
+            enumerable: false,
+            configurable: false,
+            get: function () {
+                return __muenScreenDt();
+            },
+        },
 
-Object.defineProperty(screen, "dt", {
-    enumerable: false,
-    configurable: false,
-    get: function () {
-        // @ts-ignore
-        return __muenScreenDt();
-    },
-});
+        time: {
+            enumerable: false,
+            configurable: false,
+            get: function () {
+                return __muenScreenTime();
+            },
+        },
 
-Object.defineProperty(screen, "width", {
-    get: function () {
-        // @ts-ignore
-        return __muenScreenWidth();
-    },
-    enumerable: false,
-    configurable: false,
-});
+        width: {
+            get: function () {
+                return __muenScreenWidth();
+            },
+            enumerable: false,
+            configurable: false,
+        },
 
-Object.defineProperty(screen, "height", {
-    get: function () {
-        // @ts-ignore
-        return __muenScreenHeight();
-    },
-    enumerable: false,
-    configurable: false,
-});
+        height: {
+            get: function () {
+                return __muenScreenHeight();
+            },
+            enumerable: false,
+            configurable: false,
+        },
+    }
+);
 
 module.exports = Object.freeze(screen);

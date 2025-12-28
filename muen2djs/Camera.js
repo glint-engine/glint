@@ -1,9 +1,6 @@
 var Vector2 = require("muen/Vector2");
 
 /**
- * @class
- * Defines position/orientation in 2D space
- *
  * @constructor
  * @param {Vector2} offset Camera offset (displacement from target)
  * @param {Vector2} target Camera target (rotation and zoom origin)
@@ -20,34 +17,20 @@ function Camera(offset, target, rotation, zoom) {
         throw TypeError("Invalid arguments for Camera");
     }
 
-    /**
-     * Camera offset (displacement from target)
-     * @type {Vector2}
-     */
+    /** @type {Vector2} */
     this.offset = offset.clone();
 
-    /**
-     * Camera target (rotation and zoom origin)
-     * @type {Vector2}
-     */
+    /** @type {Vector2} */
     this.target = target.clone();
 
-    /**
-     * Camera rotation in degrees
-     * @type {number}
-     */
+    /** @type {number} */
     this.rotation = rotation;
 
-    /**
-     * Camera zoom (scaling)
-     *  @type {number}
-     */
+    /** @type {number} */
     this.zoom = zoom;
 }
 
 /**
- * Constructs camera with default parameters
- * @static
  * @returns {Camera}
  */
 Camera.default = function () {

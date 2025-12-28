@@ -1,9 +1,14 @@
 #pragma once
 
-#include <unordered_map>
+#include <optional>
 #include <string>
+#include <unordered_map>
+#include <expected>
+
+#include <raylib.h>
 
 #include "js.hpp"
+#include "audio.hpp"
 
 namespace muen::engine {
 
@@ -15,15 +20,19 @@ struct Config {
 };
 
 struct Engine {
-    js::State *js;
-    const char *root_path;
-    std::unordered_map<std::string, std::string> muen_modules;
+    js::State *js {};
+    const char *root_path {};
+    std::unordered_map<std::string, std::string> muen_modules {};
+    std::unordered_map<std::string, uint32_t> sounds_cache {};
+    std::unordered_map<uint32_t, audio::Sound> sounds {};
 };
 
 auto create() -> Engine;
-
-void destroy(Engine& window);
-
+auto destroy(Engine& window) -> void;
 auto run(Engine& self, const char *path) -> int;
+auto is_audio_ready(Engine& self) -> bool;
+auto load_sound(Engine& self, std::string path) -> std::expected<uint32_t, std::string>;
+auto unload_sound(Engine& self, uint32_t id) -> void;
+auto get_sound(Engine& self, uint32_t id) -> std::optional<audio::Sound>;
 
 } // namespace muen::engine

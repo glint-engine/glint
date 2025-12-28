@@ -2,9 +2,10 @@
 
 #include "bindings/console.hpp"
 #include "bindings/fs.hpp"
+#include "bindings/globals.hpp"
 #include "bindings/graphics.hpp"
 #include "bindings/screen.hpp"
-#include "bindings/globals.hpp"
+#include "bindings/sound.hpp"
 #include "js.hpp"
 
 namespace muen::bindings {
@@ -15,12 +16,17 @@ auto define_global_function(js_State *j, void (*fun)(js_State *), const char *na
 }
 
 auto define(js::State *j) -> void {
+    mujs_catch(j);
+
     console::define(j);
     fs::define(j);
     graphics::define(j);
     screen::define(j);
+    sound::define(j);
 
     globals::define(j);
+
+    js::endtry(j);
 }
 
 } // namespace muen::bindings

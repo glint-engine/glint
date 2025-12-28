@@ -1,11 +1,3 @@
-/**
- * @global
- * @function
- * @param {string} name
- * @returns {any}
- */
-var require;
-
 Object.defineProperty(this, "require", {
     value: (function () {
         var require = Function(
@@ -34,22 +26,9 @@ Object.defineProperty(this, "require", {
     enumerable: false,
 });
 
-var Console = require("muen/Console");
-
-/**
- * @global
- * @constant
- * @type {Console}
- */
-// biome-ignore lint/correctness/noUnusedVariables: variable for JSDoc
-var console;
-
 Object.defineProperty(this, "console", {
-    value: new Console(),
+    value: require("muen/console"),
     writable: false,
     configurable: false,
     enumerable: true,
 });
-
-// @ts-ignore
-Console = undefined;

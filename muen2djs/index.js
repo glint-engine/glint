@@ -1,15 +1,17 @@
-var Color = require("muen/Color");
 var Camera = require("muen/Camera");
-var graphics = require("muen/graphics");
+var Color = require("muen/Color");
 var Rectangle = require("muen/Rectangle");
-var screen = require("muen/screen");
+var Sound = require("muen/Sound");
 var Vector2 = require("muen/Vector2");
+var graphics = require("muen/graphics");
+var screen = require("muen/screen");
 
 module.exports = {
-    Color: Color,
     Camera: Camera,
-    graphics: graphics,
+    Color: Color,
     Rectangle: Rectangle,
-    screen: screen,
+    Sound: Sound,
     Vector2: Vector2,
+    graphics: graphics,
+    screen: screen,
 };
