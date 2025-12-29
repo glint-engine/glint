@@ -1,6 +1,7 @@
 /**
  * @namespace
  */
+
 var graphics = Object.create({
     /**
      * @param {Color} color
@@ -83,6 +84,82 @@ var graphics = Object.create({
      */ // @ts-ignore
     endCameraMode: function () {
         __muenGraphicsEndCameraMode();
+        return this;
+    },
+
+    /**
+     * @param {Texture} texture
+     * @param {number} x
+     * @param {number} y
+     * @param {Color} tint
+     * @returns {typeof graphics}
+     */ // @ts-ignore
+    texture: function (texture, x, y, tint) {
+        __muenGraphicsTexture(texture, x, y, tint);
+        return this;
+    },
+
+    /**
+     * @param {Texture} texture
+     * @param {Vector2} position
+     * @param {Color} tint
+     * @returns {typeof graphics}
+     */ // @ts-ignore
+    textureV: function (texture, position, tint) {
+        __muenGraphicsTextureV(texture, position, tint);
+        return this;
+    },
+
+    /**
+     * @param {Texture} texture
+     * @param {Vector2} position
+     * @param {number} rotation
+     * @param {number} scale
+     * @param {Color} tint
+     * @returns {typeof graphics}
+     */ // @ts-ignore
+    textureEx: function (texture, position, rotation, scale, tint) {
+        __muenGraphicsTextureEx(texture, position, rotation, scale, tint);
+        return this;
+    },
+
+    /**
+     * @param {Texture} texture
+     * @param {Rectangle} source
+     * @param {Vector2} position
+     * @param {Color} tint
+     * @returns {typeof graphics}
+     */ // @ts-ignore
+    textureRec: function (texture, source, position, tint) {
+        __muenGraphicsTextureRec(texture, source, position, tint);
+        return this;
+    },
+
+    /**
+     * @param {Texture} texture
+     * @param {Rectangle} source
+     * @param {Rectangle} dest
+     * @param {Vector2} origin
+     * @param {number} rotation
+     * @param {Color} tint
+     * @returns {typeof graphics}
+     */ // @ts-ignore
+    texturePro: function (texture, source, dest, origin, rotation, tint) {
+        __muenGraphicsTexturePro(texture, source, dest, origin, rotation, tint);
+        return this;
+    },
+
+    /**
+     * @param {Texture} texture
+     * @param {NPatch} nPatch
+     * @param {Rectangle} dest
+     * @param {Vector2} origin
+     * @param {number} rotation
+     * @param {Color} tint
+     * @returns {typeof graphics}
+     */ // @ts-ignore
+    textureNPatch: function (texture, nPatch, dest, origin, rotation, tint) {
+        __muenGraphicsTextureNPatch(texture, nPatch, dest, origin, rotation, tint);
         return this;
     },
 });

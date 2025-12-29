@@ -17,6 +17,32 @@ declare function __muenGraphicsRectangleRec(rec: Rectangle, color: Color): void;
 declare function __muenGraphicsRectanglePro(rec: Rectangle, origin: Vector2, rotation: number, color: Color): void;
 declare function __muenGraphicsBeginCameraMode(camera: Camera): void;
 declare function __muenGraphicsEndCameraMode(): void;
+declare function __muenGraphicsTexture(texture: Texture, x: number, y: number, tint: Color): void;
+declare function __muenGraphicsTextureV(texture: Texture, position: Vector2, tint: Color): void;
+declare function __muenGraphicsTextureEx(
+    texture: Texture,
+    position: Vector2,
+    rotation: number,
+    scale: number,
+    tint: Color
+): void;
+declare function __muenGraphicsTextureRec(texture: Texture, source: Rectangle, position: Vector2, tint: Color): void;
+declare function __muenGraphicsTexturePro(
+    texture: Texture,
+    source: Rectangle,
+    dest: Rectangle,
+    origin: Vector2,
+    rotation: number,
+    tint: Color
+): void;
+declare function __muenGraphicsTextureNPatch(
+    texture: Texture,
+    nPatch: NPatch,
+    dest: Rectangle,
+    origin: Vector2,
+    rotation: number,
+    tint: Color
+): void;
 
 declare function __muenScreenDt(): number;
 declare function __muenScreenTime(): number;
@@ -51,3 +77,15 @@ declare function __muenMusicGetPan(id: number): number;
 declare function __muenMusicSetPan(id: number, pan: number): void;
 declare function __muenMusicGetPitch(id: number): number;
 declare function __muenMusicSetPitch(id: number, pitch: number): void;
+
+interface BasicTexture {
+    id: number;
+    width: number;
+    height: number;
+    mipmaps: number;
+    format: number;
+}
+
+declare function __muenTextureLoad(path: string): BasicTexture;
+declare function __muenTextureUnload(texture: BasicTexture): void;
+declare function __muenTextureIsValid(texture: BasicTexture): boolean;
