@@ -102,8 +102,22 @@ auto run(Engine& self, const char *path) -> int {
     );
     defer(window::close(w));
 
+    auto a = audio::create();
+    defer(audio::close(a));
+
     try {
         mujs_catch(self.js);
+
+        js::pushliteral(
+            self.js,
+            R"(
+            if (game.load) {
+                game.load();
+            })"
+        );
+        js::eval(self.js);
+        js::pop(self.js, 1);
+
         while (!window::should_close(w)) {
             js::getglobal(self.js, "game");
             js::getproperty(self.js, -1, "update");
