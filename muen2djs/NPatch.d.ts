@@ -56,7 +56,7 @@ declare class NPatch {
     /**
      * "default":    Npatch layout: 3x3 tiles
      * "vertical":   Npatch layout: 1x3 tiles
-     * "horizontal": Npatch layout: 3x1 tiles 
+     * "horizontal": Npatch layout: 3x1 tiles
      */
     layout?: "default" | "vertical" | "horizontal";
     /**
@@ -67,7 +67,14 @@ declare class NPatch {
      * @param {number} bottom    Bottom border offset
      * @param {"default" | "vertical" | "horizontal" | undefined} layout Layout of the n-patch: 3x3, 1x3 or 3x1
      */
-    constructor(source: Rectangle, left: number, top: number, right: number, bottom: number, layout?: "default" | "vertical" | "horizontal");
+    constructor(
+        source: Rectangle,
+        left: number,
+        top: number,
+        right: number,
+        bottom: number,
+        layout?: "default" | "vertical" | "horizontal"
+    );
 }
 
 /**

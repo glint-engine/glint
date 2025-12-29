@@ -43,7 +43,7 @@ Object.defineProperty(Texture.prototype, "valid", {
 Object.defineProperty(Texture.prototype, "source", {
     get: function () {
         if (!this.__source) {
-            this.__source = new Rectangle(0,0, this.width, this.height);
+            this.__source = new Rectangle(0, 0, this.width, this.height);
         }
 
         return this.__source;

@@ -12,5 +12,6 @@ auto tovector2(::js_State *j, int idx) -> ::Vector2;
 auto torectangle(::js_State *j, int idx) -> ::Rectangle;
 auto tocamera(::js_State *j, int idx) -> ::Camera2D;
 auto totexture(::js_State *j, int idx) -> ::Texture;
+auto tonpatch(::js_State *j, int idx) -> ::NPatchInfo;
 
 } // namespace muen::bindings::types

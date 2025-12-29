@@ -107,6 +107,94 @@ auto define(js::State *j) -> void {
         },
         "__muenGraphicsEndCameraMode"
     );
+
+    define_global_function(
+        j,
+        [](js::State *j) -> void {
+            const auto texture = types::totexture(j, 1);
+            const auto x = js::tointeger(j, 2);
+            const auto y = js::tointeger(j, 3);
+            const auto tint = types::tocolor(j, 4);
+            DrawTexture(texture, x, y, tint);
+            js::pushundefined(j);
+        },
+        "__muenGraphicsTexture",
+        5
+    );
+
+    define_global_function(
+        j,
+        [](js::State *j) -> void {
+            const auto texture = types::totexture(j, 1);
+            const auto position = types::tovector2(j, 2);
+            const auto tint = types::tocolor(j, 3);
+            DrawTextureV(texture, position, tint);
+            js::pushundefined(j);
+        },
+        "__muenGraphicsTextureV",
+        4
+    );
+
+    define_global_function(
+        j,
+        [](js::State *j) -> void {
+            const auto texture = types::totexture(j, 1);
+            const auto position = types::tovector2(j, 2);
+            const auto rotation = js::tofloat(j, 3);
+            const auto scale = js::tofloat(j, 4);
+            const auto tint = types::tocolor(j, 5);
+            DrawTextureEx(texture, position, rotation, scale, tint);
+            js::pushundefined(j);
+        },
+        "__muenGraphicsTextureEx",
+        6
+    );
+
+    define_global_function(
+        j,
+        [](js::State *j) -> void {
+            const auto texture = types::totexture(j, 1);
+            const auto source = types::torectangle(j, 2);
+            const auto position = types::tovector2(j, 3);
+            const auto tint = types::tocolor(j, 4);
+            DrawTextureRec(texture, source, position, tint);
+            js::pushundefined(j);
+        },
+        "__muenGraphicsTextureRec",
+        5
+    );
+
+    define_global_function(
+        j,
+        [](js::State *j) -> void {
+            const auto texture = types::totexture(j, 1);
+            const auto source = types::torectangle(j, 2);
+            const auto dest = types::torectangle(j, 3);
+            const auto origin = types::tovector2(j, 4);
+            const auto rotation = js::tofloat(j, 5);
+            const auto tint = types::tocolor(j, 6);
+            DrawTexturePro(texture, source, dest, origin, rotation, tint);
+            js::pushundefined(j);
+        },
+        "__muenGraphicsTexturePro",
+        7
+    );
+
+    define_global_function(
+        j,
+        [](js::State *j) -> void {
+            const auto texture = types::totexture(j, 1);
+            const auto nPatch = types::tonpatch(j, 2);
+            const auto dest = types::torectangle(j, 3);
+            const auto origin = types::tovector2(j, 4);
+            const auto rotation = js::tofloat(j, 5);
+            const auto tint = types::tocolor(j, 6);
+            DrawTextureNPatch(texture, nPatch, dest, origin, rotation, tint);
+            js::pushundefined(j);
+        },
+        "__muenGraphicsTextureNPatch",
+        7
+    );
 }
 
 } // namespace muen::bindings::graphics

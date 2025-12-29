@@ -1,18 +1,19 @@
 /**
  * @constructor
  * @param {Rectangle} source
- * @param {number} left 
- * @param {number} top 
- * @param {number} right 
- * @param {number} bottom 
- * @param {"default" | "vertical" | "horizontal" | undefined} layout 
+ * @param {number} left
+ * @param {number} top
+ * @param {number} right
+ * @param {number} bottom
+ * @param {"default" | "vertical" | "horizontal" | undefined} layout
  */
 function NPatch(source, left, top, right, bottom, layout) {
     if (!layout) {
         layout = "default";
     }
 
-    if (typeof source.x !== "number" ||
+    if (
+        typeof source.x !== "number" ||
         typeof source.y !== "number" ||
         typeof source.width !== "number" ||
         typeof source.height !== "number" ||
@@ -20,9 +21,7 @@ function NPatch(source, left, top, right, bottom, layout) {
         typeof top !== "number" ||
         typeof right !== "number" ||
         typeof bottom !== "number" ||
-        (layout !== "default" &&
-            layout !== "vertical" &&
-            layout !== "horizontal")
+        (layout !== "default" && layout !== "vertical" && layout !== "horizontal")
     ) {
         throw TypeError("Invalid arguments for NPatch");
     }
@@ -36,7 +35,6 @@ function NPatch(source, left, top, right, bottom, layout) {
     this.right = right;
     this.bottom = bottom;
     this.layout = layout;
-
 }
 
 Object.defineProperties(NPatch, {
@@ -52,4 +50,4 @@ Object.defineProperties(NPatch, {
         value: "horizontal",
         writable: false,
     },
-})
+});

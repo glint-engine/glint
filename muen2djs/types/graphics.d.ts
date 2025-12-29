@@ -15,6 +15,26 @@ declare interface graphics {
     rectanglePro(rec: Rectangle, origin: Vector2, rotation: number, color: Color): graphics;
     beginCameraMode(camera: Camera): graphics;
     endCameraMode(): graphics;
+    texture(texture: Texture, x: number, y: number, tint: Color): graphics;
+    textureV(texture: Texture, position: Vector2, tint: Color): void;
+    textureEx(texture: Texture, position: Vector2, rotation: number, scale: number, tint: Color): void;
+    textureRec(texture: Texture, source: Rectangle, position: Vector2, tint: Color): void;
+    texturePro(
+        texture: Texture,
+        source: Rectangle,
+        dest: Rectangle,
+        origin: Vector2,
+        rotation: number,
+        tint: Color
+    ): void;
+    textureNPatch(
+        texture: Texture,
+        nPatch: NPatch,
+        dest: Rectangle,
+        origin: Vector2,
+        rotation: number,
+        tint: Color
+    ): void;
 }
 
 /**

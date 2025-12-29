@@ -111,4 +111,55 @@ auto totexture(js_State *j, int idx) -> ::Texture {
 
     return t;
 }
+
+auto tonpatch(js_State *j, int idx) -> ::NPatchInfo {
+    ::NPatchInfo np;
+
+    js::getproperty(j, idx, "x");
+    np.source.x = js::tofloat(j, -1);
+    js::pop(j, 1);
+
+    js::getproperty(j, idx, "y");
+    np.source.y = js::tofloat(j, -1);
+    js::pop(j, 1);
+
+    js::getproperty(j, idx, "width");
+    np.source.width = js::tofloat(j, -1);
+    js::pop(j, 1);
+
+    js::getproperty(j, idx, "height");
+    np.source.height = js::tofloat(j, -1);
+    js::pop(j, 1);
+
+    js::getproperty(j, idx, "left");
+    np.left = js::tointeger(j, -1);
+    js::pop(j, 1);
+
+    js::getproperty(j, idx, "top");
+    np.top = js::tointeger(j, -1);
+    js::pop(j, 1);
+
+    js::getproperty(j, idx, "right");
+    np.right = js::tointeger(j, -1);
+    js::pop(j, 1);
+
+    js::getproperty(j, idx, "bottom");
+    np.bottom = js::tointeger(j, -1);
+    js::pop(j, 1);
+
+    js::getproperty(j, idx, "layout");
+    const auto layout = std::string_view {js::tostring(j, -1)};
+    if (layout == "default") {
+        np.layout = ::NPATCH_NINE_PATCH;
+    } else if (layout == "vertical") {
+        np.layout = ::NPATCH_THREE_PATCH_VERTICAL;
+    } else if (layout == "horizontal") {
+        np.layout = ::NPATCH_THREE_PATCH_HORIZONTAL;
+    } else {
+        js::error(j, "Invalid NPatch layout '%s'", layout.data()); // NOLINT
+    }
+    js::pop(j, 1);
+
+    return np;
+}
 } // namespace muen::bindings::types
