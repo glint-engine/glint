@@ -1,5 +1,6 @@
 #include "./module.hpp"
 
+#include <array>
 #include <span>
 
 #include <spdlog/spdlog.h>
@@ -48,18 +49,18 @@ auto console_error(JSContext *js, JSValueConst this_val, int argc, JSValueConst 
     return log(js, std::span(argv, argc), level_enum::err);
 }
 
-const static std::array funcs = {
-    JSCFunctionListEntry JS_CFUNC_DEF("trace", 0, console_trace),
-    JSCFunctionListEntry JS_CFUNC_DEF("debug", 0, console_debug),
-    JSCFunctionListEntry JS_CFUNC_DEF("log", 0, console_log),
-    JSCFunctionListEntry JS_CFUNC_DEF("warn", 0, console_warn),
-    JSCFunctionListEntry JS_CFUNC_DEF("error", 0, console_error),
+const static auto FUNCS = std::array {
+    ::JSCFunctionListEntry JS_CFUNC_DEF("trace", 0, console_trace),
+    ::JSCFunctionListEntry JS_CFUNC_DEF("debug", 0, console_debug),
+    ::JSCFunctionListEntry JS_CFUNC_DEF("log", 0, console_log),
+    ::JSCFunctionListEntry JS_CFUNC_DEF("warn", 0, console_warn),
+    ::JSCFunctionListEntry JS_CFUNC_DEF("error", 0, console_error),
 };
 
 auto module(JSContext *js) -> JSModuleDef * {
     auto m = JS_NewCModule(js, "muen:console", [](auto js, auto m) -> int {
         auto o = JS_NewObject(js);
-        JS_SetPropertyFunctionList(js, o, funcs.data(), funcs.size());
+        JS_SetPropertyFunctionList(js, o, FUNCS.data(), FUNCS.size());
         JS_SetModuleExport(js, m, "default", o);
 
         return 0;

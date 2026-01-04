@@ -1,5 +1,6 @@
 #include <plugins/math.hpp>
 
+#include <array>
 #include <format>
 
 #include <raylib.h>
@@ -216,7 +217,7 @@ static auto to_string(::JSContext *js, JSValue this_val, int argc, JSValue *argv
     return JS_NewString(js, str.c_str());
 }
 
-static const auto PROTO_FUNCS = std::array{
+static const auto PROTO_FUNCS = std::array {
     ::JSCFunctionListEntry JS_CGETSET_DEF("x", get_x, set_x),
     ::JSCFunctionListEntry JS_CGETSET_DEF("y", get_y, set_y),
     ::JSCFunctionListEntry JS_CGETSET_DEF("width", get_width, set_width),
@@ -224,7 +225,8 @@ static const auto PROTO_FUNCS = std::array{
     ::JSCFunctionListEntry JS_CFUNC_DEF("toString", 0, to_string),
 };
 
-static const auto STATIC_FUNCS = std::array{
+static const auto STATIC_FUNCS = std::array {
+// static const auto STATIC_FUNCS = std::vector<::JSCFunctionListEntry>{
     ::JSCFunctionListEntry JS_CFUNC_DEF("zero", 0, zero),
     ::JSCFunctionListEntry JS_CFUNC_DEF("fromVectors", 0, from_vectors),
 };
