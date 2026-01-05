@@ -1,7 +1,7 @@
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.compile_commands.autoupdate", {outputdir = "build"})
 
-add_requires("quickjs-ng 0.11.0", {alias = "quickjs", configs = {debug = true}} )
+add_requires("quickjs-ng v0.11.0", {alias = "quickjs", configs = {debug = true}} )
 add_requires("raylib 5.5")
 add_requires("spdlog 1.16.0", {
     configs = {
