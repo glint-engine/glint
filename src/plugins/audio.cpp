@@ -1,6 +1,3 @@
-#include "./audio/audio.cpp"
-#include "./audio/classes/Music.cpp"
-#include "./audio/classes/Sound.cpp"
-#include "./audio/music.cpp"
-#include "./audio/sound.cpp"
+#include "./audio/Music.cpp"
+#include "./audio/Sound.cpp"
 #include "./audio/descriptor.cpp"

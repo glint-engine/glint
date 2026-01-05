@@ -1,3 +1,5 @@
+#include <plugins/window.hpp>
+
 #include <array>
 
 #include <quickjs.h>

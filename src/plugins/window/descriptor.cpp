@@ -1,5 +1,4 @@
-#include <engine/plugin.hpp>
-#include <plugins/window/module.hpp>
+#include <plugins/window.hpp>
 
 namespace muen::plugins::window {
 

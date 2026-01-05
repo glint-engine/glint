@@ -1,5 +1,5 @@
+#include <plugins/console.hpp>
 #include <engine/plugin.hpp>
-#include <plugins/console/module.hpp>
 
 namespace muen::plugins::console {
 

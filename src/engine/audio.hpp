@@ -6,7 +6,7 @@
 
 #include <raylib.h>
 
-namespace muen::plugins::audio {
+namespace muen::engine::audio {
 
 namespace music {
     struct Music {
@@ -70,4 +70,4 @@ auto init() -> void;
 auto close() -> void;
 auto get() -> Audio&;
 
-} // namespace muen::plugins::audio
+} // namespace muen::engine::audio

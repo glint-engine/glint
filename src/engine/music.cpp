@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace muen::plugins::audio::music {
+namespace muen::engine::audio::music {
 
 auto load(const std::string& path) -> std::expected<Music *, std::string> {
     const auto raylib_music = ::LoadMusicStream(path.c_str());

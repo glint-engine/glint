@@ -217,5 +217,8 @@ auto resolve_path(const Engine& self, const std::string& path) -> std::string {
 
 } // namespace muen::engine
 
+#include "./engine/audio.cpp"
 #include "./engine/game.cpp"
+#include "./engine/music.cpp"
+#include "./engine/sound.cpp"
 #include "./engine/window.cpp"

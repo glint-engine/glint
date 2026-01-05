@@ -1,11 +1,11 @@
-#include "./module.hpp"
+#include <plugins/console.hpp>
 
 #include <array>
 #include <span>
 
 #include <spdlog/spdlog.h>
 
-#include "defer.hpp"
+#include <defer.hpp>
 
 namespace muen::plugins::console {
 

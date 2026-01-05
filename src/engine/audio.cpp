@@ -2,7 +2,7 @@
 
 #include <raylib.h>
 
-namespace muen::plugins::audio {
+namespace muen::engine::audio {
 
 auto init() -> void {
     ::InitAudioDevice();

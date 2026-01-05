@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-namespace muen::plugins::audio::sound {
+namespace muen::engine::audio::sound {
 
 auto load(const std::string& path) -> std::expected<Sound*, std::string> {
     const auto raylib_sound = ::LoadSound(path.c_str());

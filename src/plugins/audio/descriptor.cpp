@@ -1,7 +1,4 @@
-#include <engine/plugin.hpp>
-#include <plugins/audio/audio.hpp>
-#include <plugins/audio/classes/Music.hpp>
-#include <plugins/audio/classes/Sound.hpp>
+#include <plugins/audio.hpp>
 
 namespace muen::plugins::audio {
 
@@ -13,12 +10,12 @@ auto plugin(JSContext *js) -> EnginePlugin {
                 {"muen:Music", music_class::module(js)},
                 {"muen:Sound", sound_class::module(js)},
             },
-        .load = []() -> void { audio::init(); },
-        .unload = []() -> void { audio::close(); },
+        .load = []() -> void { engine::audio::init(); },
+        .unload = []() -> void { engine::audio::close(); },
         .update = []() -> void {
-            for (const auto music : audio::get().musics) {
-                if (music::is_playing(*music)) {
-                    music::update(*music);
+            for (const auto music : engine::audio::get().musics) {
+                if (engine::audio::music::is_playing(*music)) {
+                    engine::audio::music::update(*music);
                 }
             }
         }
