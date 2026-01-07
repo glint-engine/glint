@@ -11,6 +11,7 @@ check-js:
     npm run lint
 
 check-cpp:
+    rm -rf build
     xmake build muen
     xmake check clang.tidy --quiet
 

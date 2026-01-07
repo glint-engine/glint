@@ -6,6 +6,7 @@
 
 #include <raylib.h>
 
+#include <jsutil.hpp>
 #include <defer.hpp>
 
 namespace muen::plugins::math::vector2 {
@@ -88,12 +89,12 @@ static auto constructor(JSContext *js, JSValue new_target, int argc, JSValue *ar
     return obj;
 }
 
-static auto finalizer(JSRuntime *rt, JSValue val) {
+static auto finalizer(JSRuntime *rt, JSValueConst val) {
     auto ptr = static_cast<Vector2 *>(JS_GetOpaque(val, class_id(rt)));
     delete ptr;
 }
 
-static auto zero(JSContext *js, JSValue new_target, int argc, JSValue *argv) -> JSValue {
+static auto zero(JSContext *js, JSValueConst, int, JSValueConst *) -> JSValue {
     auto obj = JS_NewObjectClass(js, class_id(js));
     auto vec = new Vector2 {.x = 0, .y = 0};
     JS_SetOpaque(obj, vec);
@@ -134,16 +135,16 @@ static auto set_y(::JSContext *js, ::JSValueConst this_val, ::JSValueConst val) 
     return ::JS_UNDEFINED;
 }
 
-static auto to_string(::JSContext *js, JSValue this_val, int argc, JSValue *argv) -> ::JSValue {
+static auto object_to_string(::JSContext *js, JSValueConst this_val, int, JSValueConst *) -> ::JSValue {
     auto vec = pointer_from_value(js, this_val);
-    const auto str = std::format("Vector2 {{ x: {}, y: {} }}", vec->x, vec->y);
+    const auto str = to_string(*vec);
     return JS_NewString(js, str.c_str());
 }
 
 static const auto PROTO_FUNCS = std::array {
     ::JSCFunctionListEntry JS_CGETSET_DEF("x", get_x, set_x),
     ::JSCFunctionListEntry JS_CGETSET_DEF("y", get_y, set_y),
-    ::JSCFunctionListEntry JS_CFUNC_DEF("toString", 0, to_string),
+    ::JSCFunctionListEntry JS_CFUNC_DEF("toString", 0, object_to_string),
 };
 
 static const auto STATIC_FUNCS = std::array {
@@ -180,4 +181,17 @@ auto module(::JSContext *js) -> ::JSModuleDef * {
     return m;
 }
 
+auto to_string(::Vector2 vec) -> std::string {
+    return std::format("Vector2 {{ x: {}, y: {} }}", vec.x, vec.y);
+}
+
 } // namespace muen::plugins::math::vector2
+
+namespace js {
+
+template<>
+auto try_as<::Vector2>(::JSContext *js, ::JSValueConst value) -> std::expected<::Vector2, ::JSValue> {
+    return muen::plugins::math::vector2::from_value(js, value);
+}
+
+} // namespace js

@@ -245,7 +245,7 @@ static auto set_layout(::JSContext *js, ::JSValueConst this_val, ::JSValueConst 
     return ::JS_UNDEFINED;
 }
 
-static auto to_string(::JSContext *js, JSValue this_val, int argc, JSValue *argv) -> ::JSValue {
+static auto to_string(::JSContext *js, JSValue this_val, int, JSValue *) -> ::JSValue {
     auto npatch = pointer_from_value(js, this_val);
     const auto str = std::format(
         "NPatch {{ source: {{ x: {}, y: {}, width: {}, height: {} }}, left: {}, top: {}, right: {}, bottom: {}, layout: {} }}",

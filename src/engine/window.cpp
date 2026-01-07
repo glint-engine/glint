@@ -20,27 +20,27 @@ auto create(Config config) -> Window {
     return Window {.config = config};
 }
 
-auto close(Window& self) -> void {
+auto close(Window&) -> void {
     CloseWindow();
 }
 
-auto should_close(Window& self) -> bool {
+auto should_close(Window&) -> bool {
     return WindowShouldClose();
 }
 
-auto begin_drawing(Window& self) -> void {
+auto begin_drawing(Window&) -> void {
     BeginDrawing();
 }
 
-auto end_drawing(Window& self) -> void {
+auto end_drawing(Window&) -> void {
     EndDrawing();
 }
 
-auto clear(Window& self) -> void {
+auto clear(Window&) -> void {
     ClearBackground(BLACK);
 }
 
-auto draw_fps(Window& self) -> void {
+auto draw_fps(Window&) -> void {
     DrawFPS(15, 15);
 }
 

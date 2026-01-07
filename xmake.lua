@@ -11,11 +11,13 @@ add_requires("spdlog 1.16.0", {
 })
 
 set_languages({"c++23", "c11"})
+set_warnings("all", "extra")
 
 target("muen")
     set_kind("binary")
     add_files(
         "src/engine.cpp",
+        "src/jsutil.cpp",
         "src/main.cpp",
         "src/plugins/*.cpp"
     )
@@ -25,6 +27,7 @@ target("muen")
     add_headerfiles("src/(**.h)")
     add_packages({"quickjs", "spdlog", "raylib"})
     add_defines("SPDLOG_COMPILED_LIB")
+    add_defines("SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE")
     add_rules("utils.bin2c", {extensions = ".js"})
 
 --

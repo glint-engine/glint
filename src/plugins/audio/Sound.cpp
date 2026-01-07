@@ -28,6 +28,10 @@ auto from_value_unsafe(::JSContext *js, ::JSValueConst val) -> audio::Sound * {
 }
 
 static auto sound_constructor(JSContext *js, JSValue new_target, int argc, JSValue *argv) -> JSValue {
+    if (argc != 1) {
+        return JS_ThrowTypeError(js, "Sound constructor expects 1 argument, but %d were given", argc);
+    }
+
     auto e = engine::from_js(js);
     const char *filename = ::JS_ToCString(js, argv[0]);
     if (!filename) {
@@ -51,21 +55,32 @@ static auto sound_constructor(JSContext *js, JSValue new_target, int argc, JSVal
     return obj;
 }
 
-// Instance methods
-static auto sound_unload(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto sound_unload(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *) -> ::JSValue {
+    if (argc != 0) {
+        return JS_ThrowTypeError(js, "Sound.unload expects no arguments, but %d were given", argc);
+    }
+
     auto s = from_value_unsafe(js, this_val);
     audio::get().sounds.erase(s);
     sound::unload(s);
     return ::JS_UNDEFINED;
 }
 
-static auto sound_play(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto sound_play(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *) -> ::JSValue {
+    if (argc != 0) {
+        return JS_ThrowTypeError(js, "Sound.play expects no arguments, but %d were given", argc);
+    }
+
     auto s = from_value_unsafe(js, this_val);
     sound::play(*s);
     return ::JS_UNDEFINED;
 }
 
-static auto sound_stop(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto sound_stop(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *) -> ::JSValue {
+    if (argc != 0) {
+        return JS_ThrowTypeError(js, "Sound.stop expects no arguments, but %d were given", argc);
+    }
+
     auto s = from_value_unsafe(js, this_val);
     sound::stop(*s);
     return ::JS_UNDEFINED;

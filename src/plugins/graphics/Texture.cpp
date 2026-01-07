@@ -101,7 +101,7 @@ static auto get_source(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
     return obj;
 }
 
-static auto to_string(::JSContext *js, JSValue this_val, int argc, JSValue *argv) -> ::JSValue {
+static auto to_string(::JSContext *js, JSValueConst this_val, int, JSValueConst *) -> ::JSValue {
     auto tex = pointer_from_value(js, this_val);
     const auto str = std::format(
         "Texture {{ id: {}, width: {}, height: {}, mipmaps: {}, format: {} }}",

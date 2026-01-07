@@ -7,19 +7,19 @@
 
 namespace muen::plugins::window {
 
-static auto get_dt(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_dt(::JSContext *js, ::JSValueConst) -> ::JSValue {
     return ::JS_NewFloat64(js, static_cast<double>(::GetFrameTime()));
 }
 
-static auto get_time(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_time(::JSContext *js, ::JSValueConst) -> ::JSValue {
     return ::JS_NewFloat64(js, static_cast<double>(::GetTime()));
 }
 
-static auto get_width(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_width(::JSContext *js, ::JSValueConst) -> ::JSValue {
     return ::JS_NewFloat64(js, double(::GetScreenWidth()));
 }
 
-static auto get_height(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_height(::JSContext *js, ::JSValueConst) -> ::JSValue {
     return ::JS_NewFloat64(js, double(::GetScreenHeight()));
 }
 
