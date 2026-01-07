@@ -13,7 +13,7 @@ using spdlog::level::level_enum;
 
 auto log(JSContext *js, std::span<JSValueConst> args, level_enum level) -> JSValue {
     auto buf = std::stringstream {};
-    for (int i = 0; i < args.size(); i++) {
+    for (size_t i = 0; i < args.size(); i++) {
         const auto str = JS_ToCString(js, args[i]);
         defer(JS_FreeCString(js, str));
 
@@ -29,23 +29,23 @@ auto log(JSContext *js, std::span<JSValueConst> args, level_enum level) -> JSVal
     return JS_UNDEFINED;
 }
 
-auto console_trace(JSContext *js, JSValueConst this_val, int argc, JSValueConst *argv) -> JSValue {
+auto console_trace(JSContext *js, JSValueConst, int argc, JSValueConst *argv) -> JSValue {
     return log(js, std::span(argv, argc), level_enum::trace);
 }
 
-auto console_debug(JSContext *js, JSValueConst this_val, int argc, JSValueConst *argv) -> JSValue {
+auto console_debug(JSContext *js, JSValueConst, int argc, JSValueConst *argv) -> JSValue {
     return log(js, std::span(argv, argc), level_enum::debug);
 }
 
-auto console_log(JSContext *js, JSValueConst this_val, int argc, JSValueConst *argv) -> JSValue {
+auto console_log(JSContext *js, JSValueConst, int argc, JSValueConst *argv) -> JSValue {
     return log(js, std::span(argv, argc), level_enum::info);
 }
 
-auto console_warn(JSContext *js, JSValueConst this_val, int argc, JSValueConst *argv) -> JSValue {
+auto console_warn(JSContext *js, JSValueConst, int argc, JSValueConst *argv) -> JSValue {
     return log(js, std::span(argv, argc), level_enum::warn);
 }
 
-auto console_error(JSContext *js, JSValueConst this_val, int argc, JSValueConst *argv) -> JSValue {
+auto console_error(JSContext *js, JSValueConst, int argc, JSValueConst *argv) -> JSValue {
     return log(js, std::span(argv, argc), level_enum::err);
 }
 

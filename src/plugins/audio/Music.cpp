@@ -29,6 +29,9 @@ auto from_value_unsafe(JSContext *js, JSValueConst val) -> audio::Music * {
 }
 
 static auto music_constructor(JSContext *js, JSValue new_target, int argc, JSValue *argv) -> JSValue {
+    if (argc != 1) {
+        JS_ThrowTypeError(js, "Music constructor expects 1 argument, but %d were given", argc);
+    }
     auto e = engine::from_js(js);
     const char *filename = ::JS_ToCString(js, argv[0]);
     if (!filename) {
@@ -52,39 +55,62 @@ static auto music_constructor(JSContext *js, JSValue new_target, int argc, JSVal
     return obj;
 }
 
-// Instance methods
-static auto music_unload(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto music_unload(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *) -> ::JSValue {
+    if (argc != 0) {
+        JS_ThrowTypeError(js, "Music.unload expects no arguments, but %d were given", argc);
+    }
+
     auto m = from_value_unsafe(js, this_val);
     audio::get().musics.erase(m);
     music::unload(m);
     return ::JS_UNDEFINED;
 }
 
-static auto music_play(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto music_play(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *) -> ::JSValue {
+    if (argc != 0) {
+        JS_ThrowTypeError(js, "Music.play expects no arguments, but %d were given", argc);
+    }
+
     auto m = from_value_unsafe(js, this_val);
     music::play(*m);
     return ::JS_UNDEFINED;
 }
 
-static auto music_stop(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto music_stop(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *) -> ::JSValue {
+    if (argc != 0) {
+        JS_ThrowTypeError(js, "Music.stop expects no arguments, but %d were given", argc);
+    }
+
     auto m = from_value_unsafe(js, this_val);
     music::stop(*m);
     return ::JS_UNDEFINED;
 }
 
-static auto music_pause(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto music_pause(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *) -> ::JSValue {
+    if (argc != 0) {
+        JS_ThrowTypeError(js, "Music.pause expects no arguments, but %d were given", argc);
+    }
+
     auto m = from_value_unsafe(js, this_val);
     music::pause(*m);
     return ::JS_UNDEFINED;
 }
 
-static auto music_resume(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto music_resume(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *) -> ::JSValue {
+    if (argc != 0) {
+        JS_ThrowTypeError(js, "Music.resume expects no arguments, but %d were given", argc);
+    }
+
     auto m = from_value_unsafe(js, this_val);
     music::resume(*m);
     return ::JS_UNDEFINED;
 }
 
 static auto music_seek(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    if (argc != 1) {
+        JS_ThrowTypeError(js, "Music.resume expects 1 argument, but %d were given", argc);
+    }
+
     double cursor = 0;
     ::JS_ToFloat64(js, &cursor, argv[0]);
 

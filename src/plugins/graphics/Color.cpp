@@ -115,7 +115,7 @@ static auto finalizer(JSRuntime *rt, JSValue val) {
     delete ptr;
 }
 
-static auto from_hex(JSContext *js, JSValue this_value, int argc, JSValue *argv) -> JSValue {
+static auto from_hex(JSContext *js, JSValueConst, int argc, JSValueConst *argv) -> JSValue {
     if (argc != 1) {
         return JS_ThrowTypeError(js, "Color.fromHex expects 1 argument, but %d were provided", argc);
     }
@@ -231,7 +231,7 @@ static auto set_a(::JSContext *js, ::JSValueConst this_val, ::JSValueConst val) 
     return ::JS_UNDEFINED;
 }
 
-static auto to_string(::JSContext *js, JSValue this_val, int argc, JSValue *argv) -> ::JSValue {
+static auto to_string(::JSContext *js, JSValueConst this_val, int, JSValueConst *) -> ::JSValue {
     auto col = pointer_from_value(js, this_val);
     const auto str = to_string(*col);
     return JS_NewString(js, str.c_str());

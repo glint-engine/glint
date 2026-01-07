@@ -46,7 +46,7 @@ static auto constructor(::JSContext *js, ::JSValue this_val, int argc, ::JSValue
         ::JS_ToFloat64(js, &font_size, argv[1]);
     }
 
-    auto codepoints = nullptr;
+    [[maybe_unused]] auto codepoints = nullptr;
     if (argc > 2) {
         return ::JS_ThrowPlainError(js, "Font constructor with 3 arguments is not implemented yet");
     }
@@ -70,7 +70,13 @@ static auto constructor(::JSContext *js, ::JSValue this_val, int argc, ::JSValue
     return obj;
 }
 
-static auto get_valid(::JSContext *js, ::JSValue this_val) -> ::JSValue {
+static auto finalizer(JSRuntime *rt, JSValueConst this_val) -> void {
+    auto ptr = static_cast<::Font *>(JS_GetOpaque(this_val, class_id(rt)));
+    UnloadFont(*ptr);
+    delete ptr;
+}
+
+static auto get_valid(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
     auto font = from_value_unsafe(js, this_val);
     return JS_NewBool(js, ::IsFontValid(*font));
 }
@@ -81,13 +87,18 @@ static const auto PROTO_FUNCS = std::array{
 
 static const auto CLASS = ::JSClassDef {
     .class_name = "Font",
+    .finalizer = finalizer,
+    .gc_mark = nullptr,
+    .call = nullptr,
+    .exotic = nullptr,
 };
 
 auto module(::JSContext *js) -> ::JSModuleDef * {
     auto m = ::JS_NewCModule(js, "muen:Font", [](auto js, auto m) -> int {
-        auto cl = ::JS_NewClass(::JS_GetRuntime(js), class_id(js), &CLASS);
+        ::JS_NewClass(::JS_GetRuntime(js), class_id(js), &CLASS);
 
         auto proto = ::JS_NewObject(js);
+        JS_SetPropertyFunctionList(js, proto, PROTO_FUNCS.data(), PROTO_FUNCS.size());
         ::JS_SetClassProto(js, class_id(js), proto);
 
         auto ctor = ::JS_NewCFunction2(js, constructor, "Font", 0, ::JS_CFUNC_constructor, 0);

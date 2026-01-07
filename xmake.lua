@@ -11,6 +11,7 @@ add_requires("spdlog 1.16.0", {
 })
 
 set_languages({"c++23", "c11"})
+set_warnings("all", "extra")
 
 target("muen")
     set_kind("binary")

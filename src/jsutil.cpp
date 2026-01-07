@@ -13,7 +13,7 @@ auto to_string(::JSContext *js, ::JSValueConst value) -> std::string {
 }
 
 template<>
-auto try_into<::JSValue>(::JSContext *js, JSValueConst value) -> std::expected<::JSValue, ::JSValue> {
+auto try_into<::JSValue>(::JSContext *, JSValueConst value) -> std::expected<::JSValue, ::JSValue> {
     return value;
 }
 

@@ -108,7 +108,7 @@ static auto finalizer(JSRuntime *rt, JSValue val) {
     delete ptr;
 }
 
-static auto zero(JSContext *js, JSValue this_value, int argc, JSValue *argv) -> JSValue {
+static auto zero(JSContext *js, JSValueConst, int, JSValue *) -> JSValue {
     // TODO: maybe we should get proto from this_value?
     auto obj = JS_NewObjectClass(js, class_id(js));
     auto rec = new Rectangle {.x = 0, .y = 0, .width = 0, .height = 0};
@@ -116,7 +116,9 @@ static auto zero(JSContext *js, JSValue this_value, int argc, JSValue *argv) -> 
     return obj;
 }
 
-static auto from_vectors(JSContext *js, JSValue this_value, int argc, JSValue *argv) -> JSValue {
+static auto from_vectors(JSContext *js, JSValueConst, int argc, JSValue *argv) -> JSValue {
+    // TODO: maybe we should get proto from this_value?
+
     if (argc != 2) {
         return JS_ThrowTypeError(js, "Rectangle.fromVectors expects 2 arguments, but %d were provided", argc);
     }
@@ -210,10 +212,10 @@ static auto set_height(::JSContext *js, ::JSValueConst this_val, ::JSValueConst 
     return ::JS_UNDEFINED;
 }
 
-static auto to_string(::JSContext *js, JSValue this_val, int argc, JSValue *argv) -> ::JSValue {
+static auto object_to_string(::JSContext *js, JSValueConst this_val, int, JSValueConst *) -> ::JSValue {
     auto rec = pointer_from_value(js, this_val);
-    const auto str =
-        std::format("Rectangle {{ x: {}, y: {}, width: {}, height: {} }}", rec->x, rec->y, rec->width, rec->height);
+    const auto str = to_string(*rec);
+       
     return JS_NewString(js, str.c_str());
 }
 
@@ -222,7 +224,7 @@ static const auto PROTO_FUNCS = std::array {
     ::JSCFunctionListEntry JS_CGETSET_DEF("y", get_y, set_y),
     ::JSCFunctionListEntry JS_CGETSET_DEF("width", get_width, set_width),
     ::JSCFunctionListEntry JS_CGETSET_DEF("height", get_height, set_height),
-    ::JSCFunctionListEntry JS_CFUNC_DEF("toString", 0, to_string),
+    ::JSCFunctionListEntry JS_CFUNC_DEF("toString", 0, object_to_string),
 };
 
 static const auto STATIC_FUNCS = std::array {
@@ -259,6 +261,10 @@ auto module(::JSContext *js) -> ::JSModuleDef * {
     ::JS_AddModuleExport(js, m, "default");
 
     return m;
+}
+
+auto to_string(Rectangle rec) -> std::string {
+    return std::format("Rectangle {{ x: {}, y: {}, width: {}, height: {} }}", rec.x, rec.y, rec.width, rec.height);
 }
 
 } // namespace muen::plugins::math::rectangle

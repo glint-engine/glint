@@ -89,10 +89,15 @@ static auto text_from_value(::JSContext *js, ::JSValueConst value) -> std::expec
 
 static auto clear(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
     SPDLOG_TRACE("graphics.clear/{}", argc);
+    if (argc != 1) {
+        JS_ThrowTypeError(js, "graphics.clear expects 1 argument, but %d were provided", argc);
+    }
+
     const auto color = color::from_value(js, argv[0]);
     if (!color.has_value()) {
         return color.error();
     }
+
     SPDLOG_TRACE("ClearBackground({})", color::to_string(*color));
     ClearBackground(*color);
     return JS_DupValue(js, this_val);
@@ -100,6 +105,10 @@ static auto clear(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueC
 
 static auto circle_simple(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
     SPDLOG_TRACE("graphics.circle/{}", argc);
+    if (argc != 4) {
+        JS_ThrowTypeError(js, "graphics.circle expects 4 argument, but %d were provided", argc);
+    }
+
     auto x = int {}, y = int {};
     auto radius = double {};
     JS_ToInt32(js, &x, argv[0]);
@@ -115,6 +124,11 @@ static auto circle_simple(::JSContext *js, ::JSValueConst this_val, int argc, ::
 }
 
 static auto rectangle_simple(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.rectangle/{}", argc);
+    if (argc != 5) {
+        return JS_ThrowTypeError(js, "graphics.rectangle accepts 5 arguments, but %d were provided", argc);
+    }
+
     auto x = int {}, y = int {}, width = int {}, height = int {};
     ::JS_ToInt32(js, &x, argv[0]);
     ::JS_ToInt32(js, &y, argv[1]);
@@ -124,11 +138,18 @@ static auto rectangle_simple(::JSContext *js, ::JSValueConst this_val, int argc,
     if (!color.has_value()) {
         return color.error();
     }
-    ::DrawRectangle(x, y, width, height, *color);
+
+    SPDLOG_TRACE("DrawRectangle({}, {}, {}, {}, {})", x, y, width, height, color::to_string(*color));
+    DrawRectangle(x, y, width, height, *color);
     return JS_DupValue(js, this_val);
 }
 
 static auto rectangle_v(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.rectangleV/{}", argc);
+    if (argc != 3) {
+        return JS_ThrowTypeError(js, "graphics.rectangleV accepts 3 arguments, but %d were provided", argc);
+    }
+
     const auto position = math::vector2::from_value(js, argv[0]);
     if (!position.has_value()) {
         return position.error();
@@ -141,11 +162,23 @@ static auto rectangle_v(::JSContext *js, ::JSValueConst this_val, int argc, ::JS
     if (!color.has_value()) {
         return color.error();
     }
+
+    SPDLOG_TRACE(
+        "DrawRectangleV({}, {}, {})",
+        math::vector2::to_string(*position),
+        math::vector2::to_string(*size),
+        color::to_string(*color)
+    );
     ::DrawRectangleV(*position, *size, *color);
     return JS_DupValue(js, this_val);
 }
 
 static auto rectangle_rec(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.rectangleRec/{}", argc);
+    if (argc != 2) {
+        return JS_ThrowTypeError(js, "graphics.rectangleRec accepts 2 arguments, but %d were provided", argc);
+    }
+
     const auto rec = math::rectangle::from_value(js, argv[0]);
     if (!rec.has_value()) {
         return rec.error();
@@ -154,11 +187,18 @@ static auto rectangle_rec(::JSContext *js, ::JSValueConst this_val, int argc, ::
     if (!color.has_value()) {
         return color.error();
     }
-    ::DrawRectangleRec(*rec, *color);
+
+    SPDLOG_TRACE("DrawRectangleRec({}, {})", math::rectangle::to_string(*rec), color::to_string(*color));
+    DrawRectangleRec(*rec, *color);
     return JS_DupValue(js, this_val);
 }
 
 static auto rectangle_pro(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.rectanglePro/{}", argc);
+    if (argc != 4) {
+        return JS_ThrowTypeError(js, "graphics.rectanglePro accepts 4 arguments, but %d were provided", argc);
+    }
+
     const auto rec = math::rectangle::from_value(js, argv[0]);
     if (!rec.has_value()) {
         return rec.error();
@@ -173,25 +213,51 @@ static auto rectangle_pro(::JSContext *js, ::JSValueConst this_val, int argc, ::
     if (!color.has_value()) {
         return color.error();
     }
+
+    SPDLOG_TRACE(
+        "DrawRectanglePro({}, {}, {}, {})",
+        math::rectangle::to_string(*rec),
+        math::vector2::to_string(*origin),
+        rotation,
+        color::to_string(*color)
+    );
     ::DrawRectanglePro(*rec, *origin, static_cast<float>(rotation), *color);
     return JS_DupValue(js, this_val);
 }
 
 static auto begin_camera_mode(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.beginCameraMode/{}", argc);
+    if (argc != 4) {
+        return JS_ThrowTypeError(js, "graphics.beginCameraMode accepts 1 argument, but %d were provided", argc);
+    }
+
     const auto camera = camera::from_value(js, argv[0]);
     if (!camera.has_value()) {
         return camera.error();
     }
+
+    SPDLOG_TRACE("BeginMode2D({})", camera::to_string(*camera));
     ::BeginMode2D(*camera);
     return JS_DupValue(js, this_val);
 }
 
-static auto end_camera_mode(JSContext *js, JSValueConst this_val, int argc, JSValueConst *argv) -> JSValue {
+static auto end_camera_mode(JSContext *js, JSValueConst this_val, int argc, JSValueConst *) -> JSValue {
+    SPDLOG_TRACE("graphics.beginCameraMode/{}", argc);
+    if (argc != 0) {
+        return JS_ThrowTypeError(js, "graphics.beginCameraMode accepts no arguments, but %d were provided", argc);
+    }
+
+    SPDLOG_TRACE("BeginMode2D()");
     ::EndMode2D();
     return JS_DupValue(js, this_val);
 }
 
 static auto texture_simple(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.texture/{}", argc);
+    if (argc != 4) {
+        return JS_ThrowTypeError(js, "graphics.texture accepts 4 arguments, but %d were provided", argc);
+    }
+
     const auto texture = texture::from_value(js, argv[0]);
     if (!texture.has_value()) {
         return texture.error();
@@ -203,11 +269,18 @@ static auto texture_simple(::JSContext *js, ::JSValueConst this_val, int argc, :
     if (!tint.has_value()) {
         return tint.error();
     }
+
+    SPDLOG_TRACE("DrawTexture(<texture>, {}, {}, {})", x, y, color::to_string(*tint));
     ::DrawTexture(*texture, x, y, *tint);
     return JS_DupValue(js, this_val);
 }
 
 static auto texture_v(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.textureV/{}", argc);
+    if (argc != 3) {
+        return JS_ThrowTypeError(js, "graphics.textureV accepts 3 arguments, but %d were provided", argc);
+    }
+
     const auto texture = texture::from_value(js, argv[0]);
     if (!texture.has_value()) {
         return texture.error();
@@ -220,11 +293,18 @@ static auto texture_v(::JSContext *js, ::JSValueConst this_val, int argc, ::JSVa
     if (!tint.has_value()) {
         return tint.error();
     }
+
+    SPDLOG_TRACE("DrawTextureV(<texture>, {}, {})", math::vector2::to_string(*position), color::to_string(*tint));
     ::DrawTextureV(*texture, *position, *tint);
     return JS_DupValue(js, this_val);
 }
 
 static auto texture_ex(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.textureEx/{}", argc);
+    if (argc != 5) {
+        return JS_ThrowTypeError(js, "graphics.textureEx accepts 5 arguments, but %d were provided", argc);
+    }
+
     const auto texture = texture::from_value(js, argv[0]);
     if (!texture.has_value()) {
         return texture.error();
@@ -240,11 +320,24 @@ static auto texture_ex(::JSContext *js, ::JSValueConst this_val, int argc, ::JSV
     if (!tint.has_value()) {
         return tint.error();
     }
-    ::DrawTextureEx(*texture, *position, float(rotation), float(scale), *tint);
+
+    SPDLOG_TRACE(
+        "DrawTextureEx(<texture>, {}, {}, {}, {})",
+        math::vector2::to_string(*position),
+        rotation,
+        scale,
+        color::to_string(*tint)
+    );
+    DrawTextureEx(*texture, *position, float(rotation), float(scale), *tint);
     return JS_DupValue(js, this_val);
 }
 
 static auto texture_rec(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.textureRec/{}", argc);
+    if (argc != 4) {
+        return JS_ThrowTypeError(js, "graphics.textureRec accepts 4 arguments, but %d were provided", argc);
+    }
+
     const auto texture = texture::from_value(js, argv[0]);
     if (!texture.has_value()) {
         return texture.error();
@@ -261,11 +354,23 @@ static auto texture_rec(::JSContext *js, ::JSValueConst this_val, int argc, ::JS
     if (!tint.has_value()) {
         return tint.error();
     }
+
+    SPDLOG_TRACE(
+        "DrawTextureRec(<texture>, {}, {}, {})",
+        math::rectangle::to_string(*source),
+        math::vector2::to_string(*position),
+        color::to_string(*tint)
+    );
     ::DrawTextureRec(*texture, *source, *position, *tint);
     return JS_DupValue(js, this_val);
 }
 
 static auto texture_pro(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+    SPDLOG_TRACE("graphics.texturePro/{}", argc);
+    if (argc != 6) {
+        return JS_ThrowTypeError(js, "graphics.texturePro accepts 6 arguments, but %d were provided", argc);
+    }
+
     const auto texture = texture::from_value(js, argv[0]);
     if (!texture.has_value()) {
         return texture.error();
@@ -288,11 +393,25 @@ static auto texture_pro(::JSContext *js, ::JSValueConst this_val, int argc, ::JS
     if (!tint.has_value()) {
         return tint.error();
     }
-    ::DrawTexturePro(*texture, *source, *dest, *origin, float(rotation), *tint);
+
+    SPDLOG_TRACE(
+        "DrawTexturePro(<texture>, {}, {}, {}, {}, {})",
+        math::rectangle::to_string(*source),
+        math::rectangle::to_string(*dest),
+        math::vector2::to_string(*origin),
+        rotation,
+        color::to_string(*tint)
+    );
+    DrawTexturePro(*texture, *source, *dest, *origin, float(rotation), *tint);
     return JS_DupValue(js, this_val);
 }
 
 static auto texture_npatch(JSContext *js, JSValueConst this_val, int argc, JSValueConst *argv) -> JSValue {
+    SPDLOG_TRACE("graphics.texturePro/{}", argc);
+    if (argc != 6) {
+        return JS_ThrowTypeError(js, "graphics.texturePro accepts 6 arguments, but %d were provided", argc);
+    }
+
     const auto texture = texture::from_value(js, argv[0]);
     if (!texture.has_value()) {
         return texture.error();
@@ -315,6 +434,8 @@ static auto texture_npatch(JSContext *js, JSValueConst this_val, int argc, JSVal
     if (!tint.has_value()) {
         return tint.error();
     }
+
+    // TODO: trace DrawTextureNPatch
     ::DrawTextureNPatch(*texture, *npatch, *dest, *origin, static_cast<float>(rotation), *tint);
     return JS_DupValue(js, this_val);
 }
@@ -388,7 +509,7 @@ static auto text_pro(JSContext *js, JSValueConst this_val, int argc, JSValueCons
     } else if (const auto codepoints = std::get_if<std::vector<int>>(&text->text)) {
         SPDLOG_TRACE(
             "DrawTextCodepoints(<Font>, {}, {}, {}, {}, {})",
-            (void*)codepoints->data(),
+            (void *)codepoints->data(),
             codepoints->size(),
             math::vector2::to_string(position),
             font_size,

@@ -25,6 +25,7 @@ namespace camera {
     auto class_id(JSContext *js) -> ::JSClassID;
     auto class_id(JSRuntime *rt) -> ::JSClassID;
     auto from_value(::JSContext *js, ::JSValueConst val) -> std::expected<::Camera2D, ::JSValue>;
+    auto to_string(Camera2D camera) -> std::string;
 } // namespace camera
 
 namespace texture {

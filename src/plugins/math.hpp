@@ -24,6 +24,7 @@ namespace rectangle {
     auto class_id(JSContext *js) -> ::JSClassID;
     auto class_id(JSRuntime *rt) -> ::JSClassID;
     auto from_value(::JSContext *js, ::JSValueConst val) -> std::expected<::Rectangle, ::JSValue>;
+    auto to_string(Rectangle rec) -> std::string;
 } // namespace rectangle
 
 } // namespace muen::plugins::math

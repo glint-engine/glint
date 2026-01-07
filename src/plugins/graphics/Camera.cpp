@@ -121,12 +121,12 @@ static auto constructor(JSContext *js, JSValue new_target, int argc, JSValue *ar
     return obj;
 }
 
-static auto finalizer(JSRuntime *rt, JSValue val) {
+static auto finalizer(JSRuntime *rt, JSValueConst val) {
     auto ptr = static_cast<Camera2D *>(JS_GetOpaque(val, class_id(rt)));
     delete ptr;
 }
 
-static auto default_camera(JSContext *js, JSValue this_value, int argc, JSValue *argv) -> JSValue {
+static auto default_camera(JSContext *js, JSValueConst, int, JSValue *) -> JSValue {
     auto obj = JS_NewObjectClass(js, class_id(js));
     auto cam = new Camera2D {
         .offset = {0.0f, 0.0f},
@@ -140,7 +140,7 @@ static auto default_camera(JSContext *js, JSValue this_value, int argc, JSValue 
 
 static auto get_offset(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
     auto cam = pointer_from_value(js, this_val);
-    
+
     auto obj = JS_NewObjectClass(js, math::vector2::class_id(js));
     auto vec = new Vector2 {.x = cam->offset.x, .y = cam->offset.y};
     JS_SetOpaque(obj, vec);
@@ -149,7 +149,7 @@ static auto get_offset(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
 
 static auto get_target(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
     auto cam = pointer_from_value(js, this_val);
-    
+
     auto obj = JS_NewObjectClass(js, math::vector2::class_id(js));
     auto vec = new Vector2 {.x = cam->target.x, .y = cam->target.y};
     JS_SetOpaque(obj, vec);
@@ -212,16 +212,21 @@ static auto set_zoom(::JSContext *js, ::JSValueConst this_val, ::JSValueConst va
     return ::JS_UNDEFINED;
 }
 
-static auto to_string(::JSContext *js, JSValue this_val, int argc, JSValue *argv) -> ::JSValue {
+static auto to_string(::JSContext *js, JSValue this_val, int, JSValue *) -> ::JSValue {
     auto cam = pointer_from_value(js, this_val);
     const auto str = std::format(
         "Camera {{ offset: {{ x: {}, y: {} }}, target: {{ x: {}, y: {} }}, rotation: {}, zoom: {} }}",
-        cam->offset.x, cam->offset.y, cam->target.x, cam->target.y, cam->rotation, cam->zoom
+        cam->offset.x,
+        cam->offset.y,
+        cam->target.x,
+        cam->target.y,
+        cam->rotation,
+        cam->zoom
     );
     return JS_NewString(js, str.c_str());
 }
 
-static const auto PROTO_FUNCS = std::array{
+static const auto PROTO_FUNCS = std::array {
     ::JSCFunctionListEntry JS_CGETSET_DEF("offset", get_offset, set_offset),
     ::JSCFunctionListEntry JS_CGETSET_DEF("target", get_target, set_target),
     ::JSCFunctionListEntry JS_CGETSET_DEF("rotation", get_rotation, set_rotation),
@@ -229,7 +234,7 @@ static const auto PROTO_FUNCS = std::array{
     ::JSCFunctionListEntry JS_CFUNC_DEF("toString", 0, to_string),
 };
 
-static const auto STATIC_FUNCS = std::array{
+static const auto STATIC_FUNCS = std::array {
     ::JSCFunctionListEntry JS_CFUNC_DEF("default", 0, default_camera),
 };
 
@@ -263,4 +268,16 @@ auto module(::JSContext *js) -> ::JSModuleDef * {
     return m;
 }
 
-} // namespace muen::plugins::math::camera
+auto to_string(Camera2D cam) -> std::string {
+    return std::format(
+        "Camera {{ offset: {{{}, {}}}, target: {{{}, {}}}, rotation: {}, zoom: {} }}",
+        cam.offset.x,
+        cam.offset.y,
+        cam.target.x,
+        cam.target.y,
+        cam.rotation,
+        cam.zoom
+    );
+}
+
+} // namespace muen::plugins::graphics::camera

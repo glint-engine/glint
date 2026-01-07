@@ -34,7 +34,7 @@ static const auto CURSOR_MAP = std::unordered_map<std::string, ::MouseCursor> {
     {"notAllowed", MOUSE_CURSOR_NOT_ALLOWED},
 };
 
-static auto is_button_pressed(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto is_button_pressed(::JSContext *js, ::JSValueConst, int argc, ::JSValueConst *argv) -> ::JSValue {
     assert(argc == 1);
 
     auto button_cstr = ::JS_ToCString(js, argv[0]);
@@ -51,7 +51,7 @@ static auto is_button_pressed(::JSContext *js, ::JSValueConst this_val, int argc
     }
 }
 
-static auto is_button_down(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto is_button_down(::JSContext *js, ::JSValueConst, int argc, ::JSValueConst *argv) -> ::JSValue {
     assert(argc == 1);
 
     auto button_cstr = ::JS_ToCString(js, argv[0]);
@@ -68,7 +68,7 @@ static auto is_button_down(::JSContext *js, ::JSValueConst this_val, int argc, :
     }
 }
 
-static auto is_button_released(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto is_button_released(::JSContext *js, ::JSValueConst, int argc, ::JSValueConst *argv) -> ::JSValue {
     assert(argc == 1);
 
     auto button_cstr = ::JS_ToCString(js, argv[0]);
@@ -85,7 +85,7 @@ static auto is_button_released(::JSContext *js, ::JSValueConst this_val, int arg
     }
 }
 
-static auto is_button_up(::JSContext *js, ::JSValueConst this_val, int argc, ::JSValueConst *argv) -> ::JSValue {
+static auto is_button_up(::JSContext *js, ::JSValueConst, int argc, ::JSValueConst *argv) -> ::JSValue {
     assert(argc == 1);
 
     auto button_cstr = ::JS_ToCString(js, argv[0]);
@@ -102,15 +102,15 @@ static auto is_button_up(::JSContext *js, ::JSValueConst this_val, int argc, ::J
     }
 }
 
-static auto get_x(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_x(::JSContext *js, ::JSValueConst) -> ::JSValue {
     return ::JS_NewInt32(js, ::GetMouseX());
 }
 
-static auto get_y(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_y(::JSContext *js, ::JSValueConst) -> ::JSValue {
     return ::JS_NewInt32(js, ::GetMouseY());
 }
 
-static auto set_x(::JSContext *js, ::JSValueConst this_val, ::JSValueConst val) -> ::JSValue {
+static auto set_x(::JSContext *js, ::JSValueConst, ::JSValueConst val) -> ::JSValue {
     auto x = int {};
     auto y = ::GetMouseY();
     if (!::JS_IsNumber(val)) {
@@ -122,7 +122,7 @@ static auto set_x(::JSContext *js, ::JSValueConst this_val, ::JSValueConst val) 
     return ::JS_UNDEFINED;
 }
 
-static auto set_y(::JSContext *js, ::JSValueConst this_val, ::JSValueConst val) -> ::JSValue {
+static auto set_y(::JSContext *js, ::JSValueConst, ::JSValueConst val) -> ::JSValue {
     auto x = ::GetMouseX();
     auto y = int {};
     if (!::JS_IsNumber(val)) {
@@ -130,20 +130,20 @@ static auto set_y(::JSContext *js, ::JSValueConst this_val, ::JSValueConst val) 
     }
     ::JS_ToInt32(js, &y, val);
     ::SetMousePosition(x, y);
-    
+
     return ::JS_UNDEFINED;
 }
 
-static auto get_position(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_position(::JSContext *js, ::JSValueConst) -> ::JSValue {
     auto obj = JS_NewObjectClass(js, math::vector2::class_id(js));
-    auto vec = new ::Vector2{::GetMousePosition()};
+    auto vec = new ::Vector2 {::GetMousePosition()};
     JS_SetOpaque(obj, vec);
     return obj;
 }
 
-static auto set_position(::JSContext *js, ::JSValueConst this_val, ::JSValueConst val) -> ::JSValue {
+static auto set_position(::JSContext *js, ::JSValueConst, ::JSValueConst val) -> ::JSValue {
     auto obj = math::vector2::from_value(js, val);
-    if(!obj.has_value()) {
+    if (!obj.has_value()) {
         return JS_Throw(js, obj.error());
     }
 
@@ -151,15 +151,15 @@ static auto set_position(::JSContext *js, ::JSValueConst this_val, ::JSValueCons
     return ::JS_UNDEFINED;
 }
 
-static auto get_delta(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_delta(::JSContext *js, ::JSValueConst) -> ::JSValue {
     auto obj = JS_NewObjectClass(js, math::vector2::class_id(js));
-    auto vec = new ::Vector2{::GetMouseDelta()};
+    auto vec = new ::Vector2 {::GetMouseDelta()};
     JS_SetOpaque(obj, vec);
     return obj;
 }
 
-static auto set_cursor(::JSContext *js, ::JSValueConst this_val, ::JSValueConst val) -> ::JSValue {
-    auto cursor = int{};
+static auto set_cursor(::JSContext *js, ::JSValueConst, ::JSValueConst val) -> ::JSValue {
+    auto cursor = int {};
     if (!::JS_IsString(val)) {
         return JS_ThrowTypeError(js, "Mouse cursor must be string");
     }
@@ -167,18 +167,18 @@ static auto set_cursor(::JSContext *js, ::JSValueConst this_val, ::JSValueConst 
     ::SetMouseCursor(cursor);
 
     return ::JS_UNDEFINED;
-} 
+}
 
-static auto get_visible(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_visible(::JSContext *js, ::JSValueConst) -> ::JSValue {
     return ::JS_NewBool(js, ::IsCursorHidden());
 }
 
-static auto set_visible(::JSContext *js, ::JSValueConst this_val, ::JSValueConst val) -> ::JSValue {
+static auto set_visible(::JSContext *js, ::JSValueConst, ::JSValueConst val) -> ::JSValue {
     if (!::JS_IsBool(val)) {
         return JS_ThrowTypeError(js, "Mouse cursor must be boolean");
     }
 
-    if(JS_ToBool(js, val)) {
+    if (JS_ToBool(js, val)) {
         ::ShowCursor();
     } else {
         ::HideCursor();
@@ -187,13 +187,12 @@ static auto set_visible(::JSContext *js, ::JSValueConst this_val, ::JSValueConst
     return ::JS_UNDEFINED;
 }
 
-
-static auto set_enable(::JSContext *js, ::JSValueConst this_val,  ::JSValueConst val) -> ::JSValue {
-     if (!::JS_IsBool(val)) {
+static auto set_enable(::JSContext *js, ::JSValueConst, ::JSValueConst val) -> ::JSValue {
+    if (!::JS_IsBool(val)) {
         return JS_ThrowTypeError(js, "Mouse cursor must be boolean");
     }
 
-    if(JS_ToBool(js, val)) {
+    if (JS_ToBool(js, val)) {
         ::EnableCursor();
     } else {
         ::DisableCursor();
@@ -202,10 +201,9 @@ static auto set_enable(::JSContext *js, ::JSValueConst this_val,  ::JSValueConst
     return ::JS_UNDEFINED;
 }
 
-static auto get_is_on_screen(::JSContext *js, ::JSValueConst this_val) -> ::JSValue {
+static auto get_is_on_screen(::JSContext *js, ::JSValueConst) -> ::JSValue {
     return ::JS_NewBool(js, ::IsCursorOnScreen());
 }
-
 
 static const auto FUNCS = std::array {
     ::JSCFunctionListEntry JS_CFUNC_DEF("isButtonPressed", 1, is_button_pressed),
