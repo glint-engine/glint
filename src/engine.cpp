@@ -139,12 +139,13 @@ auto run(Engine& self, const char *path) -> int {
     });
 
     SPDLOG_DEBUG("Loading game");
-    const auto game_result = game::create(self.js, self.root_path);
-    if (!game_result.has_value()) {
+    auto game = game::Game {};
+    if (auto game_result = game::create(self.js, self.root_path); game_result) {
+        game = *game_result;
+    } else {
         report_error(self.js, "Exception occured while initializing game", game_result.error());
         return 1;
     }
-    auto game = *game_result;
     defer({
         SPDLOG_TRACE("Destroying game");
         game::destroy(game);
@@ -160,7 +161,6 @@ auto run(Engine& self, const char *path) -> int {
         }
     );
     defer({
-        ;
         SPDLOG_TRACE("Closing window");
         window::close(w);
     });

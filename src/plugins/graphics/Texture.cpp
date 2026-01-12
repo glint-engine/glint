@@ -135,7 +135,7 @@ auto module(::JSContext *js) -> ::JSModuleDef * {
         ::JS_NewClass(::JS_GetRuntime(js), class_id(js), &TEXTURE_CLASS);
 
         ::JSValue proto = ::JS_NewObject(js);
-        ::JS_SetPropertyFunctionList(js, proto, PROTO_FUNCS.data(), PROTO_FUNCS.size());
+        ::JS_SetPropertyFunctionList(js, proto, PROTO_FUNCS.data(), int{PROTO_FUNCS.size()});
         ::JS_SetClassProto(js, class_id(js), proto);
 
         ::JSValue ctor = ::JS_NewCFunction2(js, constructor, "Texture", 1, ::JS_CFUNC_constructor, 0);

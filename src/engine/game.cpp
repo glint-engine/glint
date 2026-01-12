@@ -1,10 +1,11 @@
 #include "./game.hpp"
 
+#include <array>
 #include <cerrno>
 #include <cstring>
-#include <sstream>
 #include <fstream>
 #include <span>
+#include <sstream>
 
 #include <spdlog/spdlog.h>
 
@@ -43,7 +44,7 @@ auto create(JSContext *js, std::string path) -> std::expected<Game, JSValue> {
     auto game_buf = std::stringstream {};
     try {
         game_buf << game_file.rdbuf();
-    } catch (std::exception& e) {
+    } catch (std::exception&) {
         return std::unexpected(JS_ThrowInternalError(js, "Could not load game file: %s", strerror(errno)));
     }
 
