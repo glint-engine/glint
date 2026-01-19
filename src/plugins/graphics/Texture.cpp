@@ -89,16 +89,27 @@ static auto constructor(JSContext *js, JSValue new_target, int argc, JSValue *ar
     const auto args = js::unpack_args<std::string>(js, argc, argv);
     if (!args) return JS_Throw(js, args.error());
     const auto [filename] = *args;
+    const auto path = std::filesystem::path(filename);
 
-    auto e = engine::from_js(js);
-    const auto path = engine::resolve_path(e, filename);
-
-    SPDLOG_TRACE("LoadTexture({})", path);
-    auto texture = LoadTexture(path.c_str());
-
-    if (texture.id == 0) {
-        return JS_ThrowInternalError(js, "Could not load texture: %s", filename.c_str());
+    auto& e = Engine::get(js);
+    auto data = e.store().read_bytes(path);
+    if (!data) {
+        return JS_ThrowInternalError(
+            js,
+            "%s",
+            std::format("Could not load texture `{}`: {}", filename, data.error()->msg()).c_str()
+        );
     }
+
+    auto image = LoadImageFromMemory(
+        path.extension().string().c_str(),
+        // NOLINTNEXTLINE: Casting from char* to unsigned char* is explicitly allowed by the standard
+        reinterpret_cast<unsigned char *>(data->data()),
+        int(data->size())
+    );
+
+    auto texture = LoadTextureFromImage(image);
+    UnloadImage(image);
 
     auto proto = JS_GetPropertyStr(js, new_target, "prototype");
     if (JS_IsException(proto)) {
@@ -114,28 +125,28 @@ static auto constructor(JSContext *js, JSValue new_target, int argc, JSValue *ar
         return JS_GetException(js);
     }
 
-    auto tex = new Texture(texture);
+    auto tex = owner<Texture *> {new (std::nothrow) Texture(texture)};
     JS_SetOpaque(obj, tex);
     return obj;
 }
 
 static auto finalizer(JSRuntime *rt, JSValue val) -> void {
-    auto ptr = static_cast<Texture *>(JS_GetOpaque(val, js::class_id<&CLASS>(rt)));
-    if (ptr) {
-        UnloadTexture(*ptr);
-        delete ptr;
-    }
+    auto ptr = owner<Texture *> {static_cast<Texture *>(JS_GetOpaque(val, js::class_id<&CLASS>(rt)))};
+
+    if (!ptr) return;
+    UnloadTexture(*ptr);
+    delete ptr;
 }
 
 static auto get_source(JSContext *js, JSValueConst this_val) -> JSValue {
     const auto tex = pointer_from_value(js, this_val);
     const auto obj = JS_NewObjectClass(js, math::rectangle::class_id(js));
-    const auto rec = new Rectangle {
+    const auto rec = owner<Rectangle *> {new (std::nothrow) Rectangle {
         .x = 0.0f,
         .y = 0.0f,
         .width = static_cast<float>(tex->width),
         .height = static_cast<float>(tex->height),
-    };
+    }};
     JS_SetOpaque(obj, rec);
     return obj;
 }

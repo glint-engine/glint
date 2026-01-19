@@ -8,11 +8,14 @@
 #include <variant>
 
 #include <quickjs.h>
+#include <gsl/gsl>
 
+#include <types.hpp>
 #include <defer.hpp>
-#include <jsutil.hpp>
 
 namespace muen::error {
+
+using namespace gsl;
 
 /// Generic error interface
 class IError {
@@ -98,10 +101,11 @@ auto create(std::string msg, std::source_location loc = std::source_location::cu
 
 /// Create new error and return raw pointer
 [[nodiscard]]
-auto create_ptr(std::string msg = "", std::source_location loc = std::source_location::current()) noexcept -> IError *;
+auto create_ptr(std::string msg = "", std::source_location loc = std::source_location::current()) noexcept
+    -> owner<IError *>;
 
 /// Free raw pointer to error
-auto free_ptr(IError *e) noexcept -> void;
+auto free_ptr(owner<IError *> e) noexcept -> void;
 
 /// Create error from JS Value
 [[nodiscard]]
@@ -111,7 +115,7 @@ auto from_js(JSContext *js, JSValue value, std::source_location loc = std::sourc
 /// Create new error from JS Value and return raw pointer
 [[nodiscard]]
 auto from_js_ptr(JSContext *js, JSValue value, std::source_location loc = std::source_location::current()) noexcept
-    -> IError *;
+    -> owner<IError *>;
 
 } // namespace muen::error
 

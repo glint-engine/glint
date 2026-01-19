@@ -29,21 +29,17 @@ auto from_value_unsafe(JSContext *js, JSValueConst val) -> audio::Music * {
 }
 
 static auto music_constructor(JSContext *js, JSValue new_target, int argc, JSValue *argv) -> JSValue {
-    if (argc != 1) {
-        JS_ThrowTypeError(js, "Music constructor expects 1 argument, but %d were given", argc);
-    }
-    auto e = engine::from_js(js);
-    const char *filename = ::JS_ToCString(js, argv[0]);
-    if (!filename) {
-        return ::JS_ThrowTypeError(js, "Invalid filename");
-    }
+    auto& e = Engine::get(js);
+    auto args = js::unpack_args<std::string>(js, argc, argv);
+    if (!args) return JS_Throw(js, args.error());
+    const auto [filename] = *args;
+    auto data = e.store().read_bytes(filename);
+    if (!data)
+        return JS_ThrowPlainError(js, "%s", fmt::format("Could not read music data: {}", data.error()->msg()).c_str());
 
-    const auto path = engine::resolve_path(e, filename);
-    const auto result = audio::music::load(path);
-    ::JS_FreeCString(js, filename);
-    if (!result.has_value()) {
+    const auto result = audio::music::load(filename, *data);
+    if (!result)
         return JS_ThrowInternalError(js, "%s", fmt::format("Could not load music: {}", result.error()->msg()).c_str());
-    }
     audio::get().musics.insert(*result);
 
     auto proto = ::JS_GetPropertyStr(js, new_target, "prototype");
@@ -62,7 +58,7 @@ static auto music_unload(::JSContext *js, ::JSValueConst this_val, int argc, ::J
 
     auto m = from_value_unsafe(js, this_val);
     audio::get().musics.erase(m);
-    music::unload(m);
+    music::unload(owner<audio::Music *> {m});
     return ::JS_UNDEFINED;
 }
 

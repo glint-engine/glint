@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include <jsutil.hpp>
+
 namespace muen::error {
 
 auto IError::msg() const noexcept -> std::string_view {
@@ -34,11 +36,11 @@ auto create(std::string message, std::source_location location) noexcept -> Erro
     return std::make_shared<StringError>(std::move(message), location);
 }
 
-auto create_ptr(std::string message, std::source_location location) noexcept -> IError * {
+auto create_ptr(std::string message, std::source_location location) noexcept -> owner<IError *> {
     return new (std::nothrow) StringError(std::move(message), location);
 }
 
-auto free_ptr(IError *e) noexcept -> void {
+auto free_ptr(owner<IError *> e) noexcept -> void {
     delete e;
 }
 
@@ -138,7 +140,7 @@ auto from_js(JSContext *js, JSValue value, std::source_location loc) noexcept ->
     return std::make_shared<JsError>(js, value, loc);
 }
 
-auto from_js_ptr(JSContext *js, JSValue value, std::source_location loc) noexcept -> IError * {
+auto from_js_ptr(JSContext *js, JSValue value, std::source_location loc) noexcept -> owner<IError *> {
     return new (std::nothrow) JsError(js, value, loc);
 }
 

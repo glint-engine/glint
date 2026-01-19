@@ -1,18 +1,22 @@
 #pragma once
 
 #include <expected>
-#include <string>
-#include <type_traits>
 #include <optional>
-#include <vector>
+#include <span>
+#include <string>
 #include <tuple>
+#include <type_traits>
+#include <vector>
 
 #include <spdlog/spdlog.h>
 #include <quickjs.h>
+#include <gsl/gsl>
 
 #include <defer.hpp>
 
 namespace js {
+
+using namespace gsl;
 
 static inline constexpr auto display_type(int64_t type) -> const char * {
     switch (type) {
@@ -51,6 +55,51 @@ static inline constexpr auto display_type(int64_t type) -> const char * {
     }
 }
 
+class Value {
+  private:
+    JSContext *_js {};
+    std::optional<JSValue> _value {};
+
+  public:
+    Value(not_null<JSContext *> js, JSValue value) noexcept;
+
+    [[nodiscard]]
+    auto operator*() noexcept -> JSValue&;
+
+    [[nodiscard]]
+    auto js() const noexcept -> JSContext *;
+
+    [[nodiscard]]
+    auto get() noexcept -> JSValue&;
+
+    ~Value() noexcept;
+    Value(const Value&) noexcept;
+    Value(Value&&) noexcept;
+    auto operator=(const Value&) -> Value&;
+    auto operator=(Value&&) noexcept -> Value&;
+    friend auto swap(Value& a, Value& b) noexcept -> void;
+
+  private:
+    Value();
+};
+
+class Function {
+  private:
+    Value _value;
+
+  public:
+    static auto from_value(gsl::not_null<JSContext *> js, JSValue value) noexcept -> std::expected<Function, JSValue>;
+    static auto from_value(Value&& value) noexcept -> std::expected<Function, JSValue>;
+    static auto from_value(Value value) noexcept -> std::expected<Function, JSValue>;
+
+    auto operator()() noexcept -> JSValue;
+    auto operator()(std::span<JSValueConst> args) noexcept -> JSValue;
+    auto operator()(JSValueConst this_value, std::span<JSValueConst> args) noexcept -> JSValue;
+
+  private:
+    Function(Value&& value) noexcept;
+};
+
 template<typename T>
 concept is_container = requires(T a, typename T::value_type v) {
     typename T::value_type;
@@ -82,26 +131,26 @@ auto class_id(JSContext *js) -> JSClassID {
     return class_id<T>(JS_GetRuntime(js));
 }
 
-auto to_string(::JSContext *js, JSValueConst value) -> std::string;
+auto to_string(JSContext *js, JSValueConst value) -> std::string;
 
 template<typename T>
-auto try_as(::JSContext *js, JSValueConst value) -> std::expected<T, JSValue>;
+auto try_as(JSContext *js, JSValueConst value) -> std::expected<T, JSValue>;
 
 template<typename T>
-auto try_into(::JSContext *js, JSValueConst value) -> std::expected<T, JSValue>;
+auto try_into(JSContext *js, JSValueConst value) -> std::expected<T, JSValue>;
 
 template<typename T>
-auto try_get_property(::JSContext *js, JSValueConst value, const std::string& name) -> std::expected<T, JSValue>;
+auto try_get_property(JSContext *js, JSValueConst value, const std::string& name) -> std::expected<T, JSValue>;
 
 template<typename T>
-auto try_as(::JSContext *js, JSValueConst value) -> std::expected<T, JSValue> {
+auto try_as(JSContext *js, JSValueConst value) -> std::expected<T, JSValue> {
     if constexpr (std::is_same_v<T, JSValue>) {
         SPDLOG_TRACE("Converting JS value to itself (no-op)");
         return value;
 
     } else if constexpr (std::is_same_v<T, double>) {
         SPDLOG_TRACE("Converting JS value to double");
-        if (!::JS_IsNumber(value)) {
+        if (!JS_IsNumber(value)) {
             return std::unexpected(JS_NewTypeError(js, "Value of type '%s' is not a number", display_type(value.tag)));
         }
 
@@ -112,7 +161,7 @@ auto try_as(::JSContext *js, JSValueConst value) -> std::expected<T, JSValue> {
 
     } else if constexpr (std::is_same_v<T, bool>) {
         SPDLOG_TRACE("Converting JS value to bool");
-        if (!::JS_IsBool(value)) {
+        if (!JS_IsBool(value)) {
             return std::unexpected(JS_NewTypeError(js, "Value of type '%s' is not a boolean", display_type(value.tag)));
         }
 
@@ -126,7 +175,7 @@ auto try_as(::JSContext *js, JSValueConst value) -> std::expected<T, JSValue> {
 
     } else if constexpr (std::is_same_v<T, std::string>) {
         SPDLOG_TRACE("Converting JS value to string");
-        if (!::JS_IsString(value)) {
+        if (!JS_IsString(value)) {
             return std::unexpected(JS_NewTypeError(js, "Value of type '%s' is not a string", display_type(value.tag)));
         }
 
@@ -134,6 +183,10 @@ auto try_as(::JSContext *js, JSValueConst value) -> std::expected<T, JSValue> {
         const auto cstr = JS_ToCStringLen(js, &len, value);
         defer(JS_FreeCString(js, cstr));
         return std::string {cstr, len};
+
+    } else if constexpr (std::is_same_v<T, Function>) {
+        SPDLOG_TRACE("Converting JS value to Function");
+        return Function::from_value(js, value);
 
     } else if constexpr (is_container<T>) {
         SPDLOG_TRACE("Converting JS value to container");
@@ -157,7 +210,7 @@ auto try_as(::JSContext *js, JSValueConst value) -> std::expected<T, JSValue> {
 
     } else if constexpr (is_optional<T>) {
         SPDLOG_TRACE("Converting JS value to optional");
-        if (::JS_IsUndefined(value) || JS_IsUninitialized(value) || JS_IsNull(value)) {
+        if (JS_IsUndefined(value) || JS_IsUninitialized(value) || JS_IsNull(value)) {
             return std::nullopt;
         } else {
             return try_as<typename T::value_type>(js, value);
@@ -169,32 +222,33 @@ auto try_as(::JSContext *js, JSValueConst value) -> std::expected<T, JSValue> {
 }
 
 template<typename T>
-auto try_into(::JSContext *js, JSValueConst value) -> std::expected<T, JSValue> {
-    defer(JS_FreeValue(js, value));
-    return try_as<T>(js, value);
+auto try_into(JSContext *js, JSValueConst value) -> std::expected<T, JSValue> {
+    if constexpr (std::is_same_v<T, JSValue>) {
+        return value;
+    } else {
+        defer(JS_FreeValue(js, value));
+        return try_as<T>(js, value);
+    }
 }
 
-template<>
-auto try_into<::JSValue>(::JSContext *js, JSValueConst value) -> std::expected<::JSValue, JSValue>;
-
 template<typename T>
-auto try_get_property(::JSContext *js, JSValueConst value, const std::string& name) -> std::expected<T, JSValue> {
+auto try_get_property(JSContext *js, JSValueConst value, const std::string& name) -> std::expected<T, JSValue> {
     SPDLOG_TRACE("Getting property `{}` from object", name);
-    if (!::JS_IsObject(value)) {
-        return std::unexpected(::JS_NewTypeError(js, "Value of type '%s' is not an object", display_type(value.tag)));
+    if (!JS_IsObject(value)) {
+        return std::unexpected(JS_NewTypeError(js, "Value of type '%s' is not an object", display_type(value.tag)));
     }
 
     auto atom = JS_NewAtom(js, name.c_str());
     if (atom == JS_ATOM_NULL) {
-        return std::unexpected(::JS_NewInternalError(js, "Could not create a new atom"));
+        return std::unexpected(JS_NewInternalError(js, "Could not create a new atom"));
     }
-    defer(::JS_FreeAtom(js, atom));
+    defer(JS_FreeAtom(js, atom));
 
-    if (!::JS_HasProperty(js, value, atom)) {
+    if (!JS_HasProperty(js, value, atom)) {
         if constexpr (is_optional<T>) {
             return std::nullopt;
         } else {
-            return std::unexpected(::JS_NewReferenceError(js, "Property `%s` does not exist on object", name.c_str()));
+            return std::unexpected(JS_NewReferenceError(js, "Property `%s` does not exist on object", name.c_str()));
         }
     }
 

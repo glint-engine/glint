@@ -72,17 +72,16 @@ auto from_value_unsafe(JSContext *js, ::JSValueConst val) -> Font * {
 }
 
 static auto constructor(JSContext *js, JSValue this_val, int argc, JSValue *argv) -> JSValue {
+    auto& e = Engine::get(js);
     if (argc == 0) {
         return JS_ThrowTypeError(js, "Font constructor expects at least 1 argument");
     }
-
-    auto e = engine::from_js(js);
 
     const char *path_cstr = JS_ToCString(js, argv[0]);
     if (path_cstr == nullptr) {
         return JS_ThrowTypeError(js, "Font constructor expects string as the first argument");
     }
-    const auto path = engine::resolve_path(e, path_cstr);
+    const auto filename = std::filesystem::path(path_cstr);
     JS_FreeCString(js, path_cstr);
 
     double font_size = 32;
@@ -98,8 +97,18 @@ static auto constructor(JSContext *js, JSValue this_val, int argc, JSValue *argv
         return JS_ThrowPlainError(js, "Font constructor with 3 arguments is not implemented yet");
     }
 
-    auto font = LoadFontEx(path.c_str(), int(font_size), nullptr, 0x1000);
-    auto font_ptr = new Font {font};
+    auto data = e.store().read_bytes(filename);
+    if (!data) return JS_ThrowPlainError(js, "%s", std::format("{}", data.error()->msg()).c_str());
+    auto font = LoadFontFromMemory(
+        filename.extension().string().c_str(),
+        // NOLINTNEXTLINE: Casting from char* to unsigned char* is explicitly allowed by the standard
+        reinterpret_cast<unsigned char *>(data->data()),
+        int(data->size()),
+        int(font_size),
+        nullptr,
+        0x1000
+    );
+    auto font_ptr = owner<Font *> {new (std::nothrow) Font {font}};
 
     auto proto = JS_GetPropertyStr(js, this_val, "prototype");
     if (!JS_IsObject(proto)) {
@@ -118,7 +127,7 @@ static auto constructor(JSContext *js, JSValue this_val, int argc, JSValue *argv
 }
 
 static auto finalizer(JSRuntime *rt, JSValueConst this_val) -> void {
-    auto ptr = static_cast<Font *>(JS_GetOpaque(this_val, js::class_id<&CLASS>(rt)));
+    auto ptr = owner<Font*>{static_cast<Font *>(JS_GetOpaque(this_val, js::class_id<&CLASS>(rt)))};
     UnloadFont(*ptr);
     delete ptr;
 }
