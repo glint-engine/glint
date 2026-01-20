@@ -1,33 +1,34 @@
 import screen from "muen:screen";
 import graphics from "muen:graphics";
+import Vector2 from "muen:Vector2";
 
 export class Ball {
     constructor(x, y, angle, color) {
-        this.x = x;
-        this.y = y;
-        this.xVel = 400 * Math.cos((angle / 360) * Math.PI);
-        this.yVel = 400 * Math.sin((angle / 360) * Math.PI);
+        this.pos = new Vector2(x, y);
+        this.vel = new Vector2(1, 0).scale(400).rotate(angle);
         this.radius = 10;
         this.color = color;
     }
 
     update() {
-        var oldX = this.x;
-        var oldY = this.y;
-        this.x += this.xVel * screen.dt;
-        this.y += this.yVel * screen.dt;
+        const pos = this.pos.clone().add(this.vel.x * screen.dt, this.vel.y * screen.dt);
+        let reflect = false;
 
-        if (this.x < this.radius || this.x >= screen.width - this.radius) {
-            this.x = oldX;
-            this.xVel *= -1;
+        if (pos.x < this.radius || pos.x >= screen.width - this.radius) {
+            reflect = true;
+            this.vel.x *= -1;
         }
-        if (this.y < this.radius || this.y >= screen.height - this.radius) {
-            this.y = oldY;
-            this.yVel *= -1;
+        if (pos.y < this.radius || pos.y >= screen.height - this.radius) {
+            reflect = true;
+            this.vel.y *= -1;
+        }
+
+        if (!reflect) {
+            this.pos = pos;
         }
     }
 
     draw() {
-        graphics.circle(this.x, this.y, this.radius, this.color);
+        graphics.circle(this.pos.x, this.pos.y, this.radius, this.color);
     }
 }

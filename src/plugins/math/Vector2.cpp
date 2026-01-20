@@ -415,7 +415,7 @@ static auto clone(JSContext *js, JSValueConst this_val, int, JSValueConst *) -> 
 
     auto new_vec = owner<Vector2 *>(new Vector2 {**this_vec});
     JS_SetOpaque(obj, new_vec);
-    return JS_DupValue(js, this_val);
+    return obj;
 }
 
 static auto object_to_string(JSContext *js, JSValueConst this_val, int, JSValueConst *) -> JSValue {

@@ -15,24 +15,26 @@ class Game {
     }
 
     load() {
-        for (var i = 1; i < 500; i++) {
-            var x = Math.random() * (screen.width - 30) + 16;
-            var y = Math.random() * (screen.height - 30) + 16;
-            var angle = Math.random() * 360;
-            var color = new Color(randomByte(), randomByte(), randomByte());
+        const count = 500;
+        console.log("Adding", count, "balls");
+        for (let i = 1; i < count; i++) {
+            const x = Math.random() * (screen.width - 30) + 16;
+            const y = Math.random() * (screen.height - 30) + 16;
+            const angle = Math.random() * 360;
+            const color = new Color(randomByte(), randomByte(), randomByte());
             this.balls.push(new Ball(x, y, angle, color));
         }
     }
 
     update() {
-        for (var i = 0; i < this.balls.length; i++) {
+        for (let i = 0; i < this.balls.length; i++) {
             this.balls[i].update();
         }
     }
 
     draw() {
         graphics.clear(this.bgColor);
-        for (var i = 0; i < this.balls.length; i++) {
+        for (let i = 0; i < this.balls.length; i++) {
             this.balls[i].draw();
         }
     }
