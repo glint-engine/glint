@@ -3,7 +3,11 @@ import Color from "muen:Color";
 import Texture from "muen:Texture";
 import Vector2 from "muen:Vector2";
 
-export const config = { title: "Graphics" };
+export const config = {
+    window: {
+        title: "Texture",
+    },
+};
 
 const bgColor = Color.fromHex("#181818");
 let t = undefined;

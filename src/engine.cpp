@@ -137,10 +137,26 @@ auto Engine::load_plugins() noexcept -> Result<> try {
     SPDLOG_DEBUG("Creating window");
     auto w = window::create(
         window::Config {
-            .width = game.config().width,
-            .height = game.config().height,
-            .fps = game.config().fps,
-            .title = game.config().title,
+            .width = game.config().window.width,
+            .height = game.config().window.height,
+            .fps = game.config().window.fps,
+            .title = game.config().window.title,
+            .window_flags = (game.config().window.vsync_hint ? FLAG_VSYNC_HINT : 0)
+                | (game.config().window.fullscreen_mode ? FLAG_FULLSCREEN_MODE : 0)
+                | (game.config().window.resizable ? FLAG_WINDOW_RESIZABLE : 0)
+                | (game.config().window.undecorated ? FLAG_WINDOW_UNDECORATED : 0)
+                | (game.config().window.hidden ? FLAG_WINDOW_HIDDEN : 0)
+                | (game.config().window.minimized ? FLAG_WINDOW_MINIMIZED : 0)
+                | (game.config().window.maximized ? FLAG_WINDOW_MAXIMIZED : 0)
+                | (game.config().window.unfocused ? FLAG_WINDOW_UNFOCUSED : 0)
+                | (game.config().window.topmost ? FLAG_WINDOW_TOPMOST : 0)
+                | (game.config().window.always_run ? FLAG_WINDOW_ALWAYS_RUN : 0)
+                | (game.config().window.transparent ? FLAG_WINDOW_TRANSPARENT : 0)
+                | (game.config().window.highdpi ? FLAG_WINDOW_HIGHDPI : 0)
+                | (game.config().window.mouse_passthrough ? FLAG_WINDOW_MOUSE_PASSTHROUGH : 0)
+                | (game.config().window.borderless_windowed_mode ? FLAG_BORDERLESS_WINDOWED_MODE : 0)
+                | (game.config().window.msaa_4x_hint ? FLAG_MSAA_4X_HINT : 0)
+                | (game.config().window.interlaced_hint ? FLAG_INTERLACED_HINT : 0)
         }
     );
     defer({
@@ -374,6 +390,15 @@ extern "C" auto module_loader(JSContext *ctx, const char *module_name, void *opa
     }
 }
 
+#define MUEN_GAMECONFIG_READ_OPTIONAL(object, variable, jsname)                                                        \
+    do { /* NOLINT */                                                                                                  \
+        if (auto v = (object).at<std::optional<decltype(variable)>>(#jsname)) {                                        \
+            if (*v) (variable) = **v;                                                                                  \
+        } else {                                                                                                       \
+            return err(v);                                                                                             \
+        }                                                                                                              \
+    } while (0)
+
 auto read_config(js::Object& ns) -> Result<GameConfig> {
     GameConfig config {};
 
@@ -382,14 +407,30 @@ auto read_config(js::Object& ns) -> Result<GameConfig> {
     auto obj_opt = std::move(*obj_result);
     if (!obj_opt) return config;
     auto obj = std::move(*obj_opt);
-
-    if (auto title = obj.at<std::optional<std::string>>("title")) {
-        if (*title) config.title = **title;
-    } else {
-        return err(title);
-    }
-
-    // TODO: other config fields
+    auto window_obj_result = obj.at<std::optional<js::Object>>("window");
+    if (!window_obj_result) return err(window_obj_result);
+    if (!window_obj_result->has_value()) return config;
+    auto window_obj = std::move(**window_obj_result);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.title, title);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.width, width);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.height, height);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.fps, fps);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.vsync_hint, vsync);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.fullscreen_mode, fullscreenMode);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.resizable, resizable);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.undecorated, undecorated);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.hidden, hidden);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.minimized, minimized);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.maximized, maximized);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.unfocused, unfocused);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.topmost, topmost);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.always_run, alwaysRun);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.transparent, transparent);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.highdpi, highdpi);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.mouse_passthrough, mousePassthrough);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.borderless_windowed_mode, borderlessWindowedMode);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.msaa_4x_hint, msaa4x);
+    MUEN_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.interlaced_hint, interlaced);
 
     return config;
 }

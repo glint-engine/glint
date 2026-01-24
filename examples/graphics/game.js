@@ -3,7 +3,11 @@ import Color from "muen:Color";
 import Vector2 from "muen:Vector2";
 import Rectangle from "muen:Rectangle";
 
-export const config = { title: "Graphics" };
+export const config = {
+    window: {
+        title: "Graphics",
+    },
+};
 
 const bgColor = { r: 100, g: 100, b: 100, a: 255 };
 

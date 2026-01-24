@@ -9,6 +9,7 @@ struct Config {
     int height;
     int fps;
     std::string title;
+    int window_flags;
 };
 
 struct Window {

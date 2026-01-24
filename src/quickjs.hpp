@@ -376,7 +376,7 @@ inline auto try_into(const Value& v) noexcept -> JSResult<T> {
     if (JS_IsUndefined(v.cget()) || JS_IsNull(v.cget())) {
         return std::nullopt;
     } else {
-        return try_into<typename T::value_type>(v);
+        return try_into<typename T::value_type>(v).transform([](auto&& arg) -> auto { return std::optional(arg); });
     }
 }
 

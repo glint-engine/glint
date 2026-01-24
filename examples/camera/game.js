@@ -8,6 +8,12 @@ const camera = Camera.default();
 const bg = Color.fromHex("#181818");
 const fg = Color.fromHex("#e17cf0ff");
 
+export const config = {
+    window: {
+        title: "Camera",
+    },
+};
+
 export function update() {
     camera.rotation += screen.dt * 150;
 

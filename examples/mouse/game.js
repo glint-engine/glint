@@ -3,7 +3,9 @@ import graphics from "muen:graphics";
 import mouse from "muen:mouse";
 
 export const config = {
-    title: "Mouse",
+    window: {
+        title: "Mouse",
+    },
 };
 
 const black = Color.fromHex("#000000");

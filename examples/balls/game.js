@@ -45,10 +45,9 @@ const randomByte = () => Math.floor(Math.random() * 256);
 let game = new Game();
 
 export const config = {
-    fps: 165,
-    width: 800,
-    height: 600,
-    title: "Balls",
+    window: {
+        title: "Balls",
+    },
 };
 
 export function load() {

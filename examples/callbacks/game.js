@@ -4,20 +4,22 @@
 
 /** Controls how the engine executes your game */
 export const config = {
-    /** Window title */
-    title: "Hello QuickJS",
+    window: {
+        /** Window title */
+        title: "Hello Callbacks",
 
-    /** Window width */
-    width: 800,
+        /** Window width */
+        width: 1600,
 
-    /** Window height */
-    height: 600,
+        /** Window height */
+        height: 900,
 
-    /**
-     * Fixed FPS for the game. `draw` and `update` function will be called `fps`
-     * times per second.
-     */
-    fps: 60,
+        /**
+         * Fixed FPS for the game. `draw` and `update` function will be called `fps`
+         * times per second.
+         */
+        fps: 30,
+    },
 };
 
 /**

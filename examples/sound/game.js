@@ -52,7 +52,9 @@ class Game {
 let game = new Game();
 
 export const config = {
-    title: "Ball sounds",
+    window: {
+        title: "Ball sounds",
+    },
 };
 
 export function load() {
