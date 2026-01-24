@@ -24,38 +24,85 @@ export interface Config {
          */
         fps?: number;
 
-        /** Set to try enabling V-Sync on GPU */
+        /**
+         * Set to try enabling V-Sync on GPU
+         */
         vsync?: boolean;
-        /** Set to run program in fullscreen */
+
+        /**
+         * Set to run program in fullscreen
+         */
         fullscreenMode?: boolean;
-        /** Set to allow resizable window */
+
+        /**
+         * Set to allow resizable window
+         */
         resizable?: boolean;
-        /** Set to disable window decoration (frame and buttons) */
+
+        /**
+         * Set to disable window decoration (frame and buttons)
+         */
         undecorated?: boolean;
-        /** Set to hide window */
+
+        /**
+         * Set to hide window
+         */
         hidden?: boolean;
-        /** Set to minimize window (iconify) */
+
+        /**
+         * Set to minimize window (iconify)
+         */
         minimized?: boolean;
-        /** Set to maximize window (expanded to monitor) */
+
+        /**
+         * Set to maximize window (expanded to monitor)
+         */
         maximized?: boolean;
-        /** Set to window non focused */
+
+        /**
+         * Set to window non focused
+         */
         unfocused?: boolean;
-        /** Set to window always on top */
+
+        /**
+         * Set to window always on top
+         */
         topmost?: boolean;
-        /** Set to allow windows running while minimized */
+
+        /**
+         * Set to allow windows running while minimized
+         */
         alwaysRun?: boolean;
-        /** Set to allow transparent framebuffer */
+
+        /**
+         * Set to allow transparent framebuffer
+         */
         transparent?: boolean;
-        /** Set to support HighDPI */
+
+        /**
+         * Set to support HighDPI
+         */
         highdpi?: boolean;
-        /** Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED */
+
+        /**
+         * Set to support mouse passthrough, only supported when FLAG_WINDOW_UNDECORATED
+         */
         mousePassthrough?: boolean;
-        /** Set to run program in borderless windowed mode */
+
+        /**
+         * Set to run program in borderless windowed mode
+         */
         borderlessWindowedMode?: boolean;
-        /** Set to try enabling MSAA 4X */
-        msaa4xHint?: boolean;
-        /** Set to try enabling interlaced video format (for V3D) */
-        interlacedHint?: boolean;
+
+        /**
+         * Set to try enabling MSAA 4X
+         */
+        msaa4x?: boolean;
+
+        /**
+         * Set to try enabling interlaced video format (for V3D)
+         */
+        interlaced?: boolean;
     };
 }
 

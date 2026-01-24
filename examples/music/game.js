@@ -3,6 +3,12 @@ import screen from "muen:screen";
 
 let music;
 
+export const config = {
+    window: {
+        title: "Music",
+    },
+};
+
 export function load() {
     music = new Music("GloriousMorning.mp3");
     music.looping = true;

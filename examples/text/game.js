@@ -7,7 +7,9 @@ import Vector2 from "muen:Vector2";
 let font;
 
 export const config = {
-    title: "Text",
+    window: {
+        title: "Text",
+    },
 };
 
 export function load() {
