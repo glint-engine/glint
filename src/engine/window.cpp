@@ -15,6 +15,9 @@ auto setup() -> void {
 }
 
 auto create(const Config &config) -> Window {
+    unsigned int flags = config.window_flags;
+
+    SetConfigFlags(flags);
     InitWindow(config.width, config.height, config.title.c_str());
     SetTargetFPS(config.fps);
     return Window {.config = config};

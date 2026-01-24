@@ -80,11 +80,31 @@ class Engine {
     ) noexcept;
 };
 
+struct GameWindowConfig {
+    bool vsync_hint = false;
+    bool fullscreen_mode = false;
+    bool window_resizable = false;
+    bool window_undecorated = false;
+    bool window_hidden = false;
+    bool window_minimized = false;
+    bool window_maximized = false;
+    bool window_unfocused = false;
+    bool window_topmost = false;
+    bool window_always_run = false;
+    bool window_transparent = false;
+    bool window_highdpi = false;
+    bool window_mouse_passthrough = false;
+    bool borderless_windowed_mode = false;
+    bool msaa_4x_hint = false;
+    bool interlaced_hint = false;
+};
+
 struct GameConfig {
     int width = 800;
     int height = 600;
     int fps = 60;
     std::string title = "muen2d";
+    GameWindowConfig window;
 };
 
 class Game {

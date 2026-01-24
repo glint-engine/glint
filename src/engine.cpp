@@ -141,6 +141,22 @@ auto Engine::load_plugins() noexcept -> Result<> try {
             .height = game.config().height,
             .fps = game.config().fps,
             .title = game.config().title,
+            .window_flags = (game.config().window.vsync_hint ? FLAG_VSYNC_HINT : 0)
+                | (game.config().window.fullscreen_mode ? FLAG_FULLSCREEN_MODE : 0)
+                | (game.config().window.window_resizable ? FLAG_WINDOW_RESIZABLE : 0)
+                | (game.config().window.window_undecorated ? FLAG_WINDOW_UNDECORATED : 0)
+                | (game.config().window.window_hidden ? FLAG_WINDOW_HIDDEN : 0)
+                | (game.config().window.window_minimized ? FLAG_WINDOW_MINIMIZED : 0)
+                | (game.config().window.window_maximized ? FLAG_WINDOW_MAXIMIZED : 0)
+                | (game.config().window.window_unfocused ? FLAG_WINDOW_UNFOCUSED : 0)
+                | (game.config().window.window_topmost ? FLAG_WINDOW_TOPMOST : 0)
+                | (game.config().window.window_always_run ? FLAG_WINDOW_ALWAYS_RUN : 0)
+                | (game.config().window.window_transparent ? FLAG_WINDOW_TRANSPARENT : 0)
+                | (game.config().window.window_highdpi ? FLAG_WINDOW_HIGHDPI : 0)
+                | (game.config().window.window_mouse_passthrough ? FLAG_WINDOW_MOUSE_PASSTHROUGH : 0)
+                | (game.config().window.borderless_windowed_mode ? FLAG_BORDERLESS_WINDOWED_MODE : 0)
+                | (game.config().window.msaa_4x_hint ? FLAG_MSAA_4X_HINT : 0)
+                | (game.config().window.interlaced_hint ? FLAG_INTERLACED_HINT : 0)
         }
     );
     defer({
@@ -389,8 +405,31 @@ auto read_config(js::Object& ns) -> Result<GameConfig> {
         return err(title);
     }
 
-    // TODO: other config fields
+    if (auto width = obj.at<std::optional<int>>("width")) {
+        if (*width) config.width = **width;
+    } else {
+        return err(width);
+    }
 
+    if (auto height = obj.at<std::optional<int>>("height")) {
+        if (*height) config.height = **height;
+    } else {
+        return err(height);
+    }
+
+    if (auto fps = obj.at<std::optional<int>>("fps")) {
+        if (*fps) config.fps = **fps;
+    } else {
+        return err(fps);
+    }
+
+    if (auto vsync_hint = obj.at<std::optional<bool>>("vsync")) {
+        if (*vsync_hint) config.window.vsync_hint = **vsync_hint;
+    } else {
+        return err(vsync_hint);
+    }
+
+    
     return config;
 }
 
