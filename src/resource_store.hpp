@@ -58,6 +58,7 @@ class ResourceStore {
         _cache.insert({name, handle});
         return handle;
     } catch (std::exception& e) {
+        SPDLOG_WARN("Unexpected C++ exception while loading resource: {}", e.what());
         return 0;
     }
 

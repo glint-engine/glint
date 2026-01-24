@@ -14,7 +14,7 @@ using plugins::graphics::font::FontOptions;
 template<>
 auto try_into<const rl::Font *>(const Value& val) noexcept -> JSResult<const rl::Font *> {
     const auto data = static_cast<FontClassData *>(JS_GetOpaque(val.cget(), class_id<&CLASS>(val.ctx())));
-    if (!data) Unexpected(JSError::type_error(val.ctx(), "Not an instance of a Font"));
+    if (!data) return Unexpected(JSError::type_error(val.ctx(), "Not an instance of a Font"));
 
     auto& e = Engine::get(val.ctx());
     auto& font = e.font_store().borrow(data->handle);
@@ -49,22 +49,22 @@ using namespace gsl;
 
 inline auto read_font_options_from_args(not_null<JSContext *> ctx, int argc, JSValueConst *argv) noexcept
     -> js::JSResult<FontLoadMode> try {
-    if (auto args = js::unpack_args<std::string>(ctx, argc, argv)) {
-        auto [path] = std::move(*args);
+    if (auto args_string = js::unpack_args<std::string>(ctx, argc, argv)) {
+        auto [path] = std::move(*args_string);
         return FontLoadByParams {
             .path = path,
             .name = path,
             .font_size = 32,
             .codepoints = std::nullopt,
         };
-    } else if (auto args = js::unpack_args<FontOptions>(ctx, argc, argv)) {
-        auto [opts] = std::move(*args);
+    } else if (auto args_options = js::unpack_args<FontOptions>(ctx, argc, argv)) {
+        auto [opts] = std::move(*args_options);
         if (opts.name && !opts.path && !opts.font_size && !opts.codepoints) {
             return FontLoadByName {
                 .name = std::move(*opts.name),
             };
         } else if (opts.path) {
-            if (!opts.name) opts.name = opts.path;
+            if (!opts.name) opts.name = opts.path->string();
             return FontLoadByParams {
                 .path = std::move(*opts.path),
                 .name = std::move(*opts.name),

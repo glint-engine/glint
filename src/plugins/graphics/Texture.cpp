@@ -55,20 +55,20 @@ using namespace gsl;
 
 inline auto read_texture_options_from_args(not_null<JSContext *> ctx, int argc, JSValueConst *argv) noexcept
     -> js::JSResult<TextureLoadMode> try {
-    if (auto args = js::unpack_args<std::string>(ctx, argc, argv)) {
-        auto [path] = std::move(*args);
+    if (auto args_string = js::unpack_args<std::string>(ctx, argc, argv)) {
+        auto [path] = std::move(*args_string);
         return TextureLoadByParams {
             .path = path,
             .name = path,
         };
-    } else if (auto args = js::unpack_args<TextureOptions>(ctx, argc, argv)) {
-        auto [opts] = std::move(*args);
+    } else if (auto args_options = js::unpack_args<TextureOptions>(ctx, argc, argv)) {
+        auto [opts] = std::move(*args_options);
         if (opts.name && !opts.path) {
             return TextureLoadByName {
                 .name = std::move(*opts.name),
             };
         } else if (opts.path) {
-            if (!opts.name) opts.name = opts.path;
+            if (!opts.name) opts.name = opts.path->string();
             return TextureLoadByParams {
                 .path = std::move(*opts.path),
                 .name = std::move(*opts.name),
