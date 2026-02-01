@@ -77,36 +77,38 @@ class Value {
     };
 
   public:
+    Value() noexcept : _v(Borrowed(not_null(static_cast<JSContext *>(nullptr)), JS_UNINITIALIZED)) {}
+
     static auto owned(not_null<JSContext *> ctx, JSValue val) noexcept -> Value { return Value::Owned(ctx, val); }
 
     static auto borrowed(not_null<JSContext *> ctx, JSValue val) noexcept -> Value { return Value::Borrowed(ctx, val); }
 
     [[nodiscard]]
-    auto ctx() const noexcept -> not_null<JSContext *> {
+    constexpr auto ctx() const noexcept -> not_null<JSContext *> {
         if (auto v = std::get_if<Owned>(&_v)) return v->_ctx;
         if (auto v = std::get_if<Borrowed>(&_v)) return v->_ctx;
-        std::unreachable();
+        abort();
     }
 
     [[nodiscard]]
     auto get() noexcept -> JSValue& {
         if (auto v = std::get_if<Owned>(&_v)) return *v->_value; // NOLINT
         if (auto v = std::get_if<Borrowed>(&_v)) return v->_value;
-        std::unreachable();
+        abort();
     }
 
     [[nodiscard]]
-    auto cget() const noexcept -> const JSValue& {
+    constexpr auto cget() const noexcept -> const JSValue& {
         if (auto v = std::get_if<Owned>(&_v)) return *v->_value; // NOLINT
         if (auto v = std::get_if<Borrowed>(&_v)) return v->_value;
-        std::unreachable();
+        abort();
     }
 
     [[nodiscard]]
     auto take() noexcept -> JSValue {
         if (auto v = std::get_if<Owned>(&_v)) return v->take(); // NOLINT
         if (auto v = std::get_if<Borrowed>(&_v)) return v->_value;
-        std::unreachable();
+        abort();
     }
 
     friend auto swap(Owned& a, Owned& b) noexcept -> void;

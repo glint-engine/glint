@@ -7,6 +7,7 @@
 #include <fmt/format.h>
 
 #include <raylib.h>
+#include <raymath.h>
 
 namespace rl {
 

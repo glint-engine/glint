@@ -41,9 +41,7 @@ inline auto convert_from_js<Value>(const Value& v) noexcept -> JSResult<Value> {
 template<>
 inline auto convert_from_js<bool>(const Value& v) noexcept -> JSResult<bool> {
     if (!JS_IsBool(v.cget())) {
-        return Unexpected(
-            JSError::type_error(v.ctx(), fmt::format("Value of type '{}' is not a boolean", display_type(v)))
-        );
+        return JSError::type_error(v.ctx(), fmt::format("Value of type '{}' is not a boolean", display_type(v)));
     }
 
     return JS_ToBool(v.ctx(), v.cget());
@@ -52,9 +50,7 @@ inline auto convert_from_js<bool>(const Value& v) noexcept -> JSResult<bool> {
 template<>
 inline auto convert_from_js<double>(const Value& v) noexcept -> JSResult<double> {
     if (!JS_IsNumber(v.cget())) {
-        return Unexpected(
-            JSError::type_error(v.ctx(), fmt::format("Value of type '{}' is not a number", display_type(v)))
-        );
+        return JSError::type_error(v.ctx(), fmt::format("Value of type '{}' is not a number", display_type(v)));
     }
 
     auto num = double {};
@@ -66,9 +62,7 @@ inline auto convert_from_js<double>(const Value& v) noexcept -> JSResult<double>
 template<>
 inline auto convert_from_js<std::string>(const Value& v) noexcept -> JSResult<std::string> {
     if (!JS_IsString(v.cget())) {
-        return Unexpected(
-            JSError::type_error(v.ctx(), fmt::format("Value of type '{}' is not a string", display_type(v)))
-        );
+        return JSError::type_error(v.ctx(), fmt::format("Value of type '{}' is not a string", display_type(v)));
     }
 
     auto len = size_t {};
@@ -92,7 +86,7 @@ template<typename T>
     && (!std::is_same_v<T, bool>)
 inline auto convert_from_js(const Value& v) noexcept -> JSResult<T> {
     auto num = convert_from_js<double>(v);
-    if (!num) return Unexpected(num.error());
+    if (!num) return num.error();
     return static_cast<T>(*num);
 }
 
@@ -100,9 +94,7 @@ template<typename T>
     requires is_container<T> && (!is_basic_string_v<T>)
 inline auto convert_from_js(const Value& v) noexcept -> JSResult<T> try {
     if (!JS_IsArray(v.cget())) {
-        return Unexpected(
-            JSError::type_error(v.ctx(), fmt::format("Value of type `{}` is not an Array", display_type(v)))
-        );
+        return JSError::type_error(v.ctx(), fmt::format("Value of type `{}` is not an Array", display_type(v)));
     }
 
     auto length = int64_t {};
@@ -116,12 +108,12 @@ inline auto convert_from_js(const Value& v) noexcept -> JSResult<T> try {
     for (auto i = 0; i < length; i++) {
         const auto prop = own(v.ctx(), JS_GetPropertyInt64(v.ctx(), v.cget(), i));
         const auto val = convert_from_js<typename T::value_type>(prop);
-        if (!val) return Unexpected(val.error());
+        if (!val) return val.error();
         container.push_back(*val);
     }
     return container;
 } catch (std::exception& e) {
-    return Unexpected(js::JSError::plain_error(v.ctx(), fmt::format("Unexpected error: {}", e.what())));
+    return js::JSError::plain_error(v.ctx(), fmt::format("Unexpected error: {}", e.what()));
 }
 
 template<typename T>
@@ -130,9 +122,9 @@ inline auto convert_from_js(const Value& v) noexcept -> JSResult<T> {
     if (JS_IsUndefined(v.cget()) || JS_IsNull(v.cget())) {
         return std::nullopt;
     } else {
-        return convert_from_js<typename T::value_type>(v).transform([](auto&& arg) -> auto {
-            return std::optional(arg);
-        });
+        auto result = convert_from_js<typename T::value_type>(v);
+        if (!result) return result.error();
+        return std::optional(*result);
     }
 }
 
@@ -172,6 +164,13 @@ inline auto convert_to_js(JSContext *ctx, T val) noexcept -> JSResult<Value> {
     return own(ctx, JS_NewFloat64(ctx, num));
 }
 
+template<typename T>
+    requires is_jsresult<T>
+inline auto convert_to_js(JSContext *ctx, T val) noexcept -> JSResult<Value> {
+    if (!val) return val.error();
+    return convert_to_js(ctx, *val);
+}
+
 template<typename... Ts>
 auto unpack_args(JSContext *js, int argc, JSValueConst *argv) -> JSResult<std::tuple<Ts...>> {
     return unpack_args_t<std::tuple<Ts...>>(js, argc, argv);
@@ -181,14 +180,18 @@ template<typename Tuple>
 auto unpack_args_t(JSContext *js, int argc, JSValueConst *argv) -> JSResult<Tuple> {
     constexpr size_t N = std::tuple_size<Tuple>();
 
-    if (argc < int {N}) {
-        return Unexpected(JSError::range_error(js, fmt::format("Expected {} arguments, got {}", N, argc)));
+    auto args_array = std::array<JSValue, N>();
+    args_array.fill(JS_UNDEFINED);
+    for (int i = 0; i < argc; i++) {
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index): I know that I am doing
+        args_array[i] = argv[i];
     }
 
     return [&]<size_t... Is>(std::index_sequence<Is...>) -> auto {
         auto try_all = [&]() -> JSResult<Tuple> {
-            auto args =
-                std::make_tuple(convert_from_js<std::tuple_element_t<Is, Tuple>>(Value::borrowed(js, argv[Is]))...);
+            auto args = std::make_tuple(
+                convert_from_js<std::tuple_element_t<Is, Tuple>>(Value::borrowed(js, args_array[Is]))...
+            );
 
             if ((... || !std::get<Is>(args).has_value())) {
                 std::optional<JSError> first_error;
@@ -196,7 +199,7 @@ auto unpack_args_t(JSContext *js, int argc, JSValueConst *argv) -> JSResult<Tupl
                 (void)((std::get<Is>(args).has_value() ? false : (first_error = std::get<Is>(args).error(), true))
                        || ...);
 
-                return Unexpected(*first_error);
+                return *first_error;
             }
             return std::make_tuple(std::move(*std::get<Is>(args))...);
         };

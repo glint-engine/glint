@@ -34,7 +34,7 @@ auto FilesystemStore::read_bytes(const std::filesystem::path& file_path) noexcep
     auto file = std::ifstream {path, std::ios::in | std::ios::binary};
     auto eos = std::istreambuf_iterator<char>();
     auto buf = std::vector<char>(std::istreambuf_iterator<char>(file), eos);
-    if (!file) return err(fmt::format("Could not read: {}", strerror(errno)));
+    if (!file) return err(fmt::format("Could not read {}: {}", file_path.string(), strerror(errno)));
     return buf;
 } catch (std::exception& e) {
     return err(e);
@@ -46,7 +46,7 @@ auto FilesystemStore::read_string(const std::filesystem::path& file_path) noexce
     auto file = std::ifstream {path, std::ios::in | std::ios::binary};
     auto buf = std::stringstream {};
     buf << file.rdbuf();
-    if (!file) return err(fmt::format("Could not read: {}", strerror(errno)));
+    if (!file) return err(fmt::format("Could not read {}: {}", file_path.string(), strerror(errno)));
     return buf.str();
 } catch (std::exception& e) {
     return err(e);

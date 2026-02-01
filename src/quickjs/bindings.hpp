@@ -19,6 +19,93 @@ struct remove_first_type<std::tuple<T, Ts...>> {
     using type = std::tuple<Ts...>;
 };
 
+inline consteval auto cfunc_def(czstring name, uint8_t length, JSCFunction *func, uint8_t flags = 0)
+    -> JSCFunctionListEntry {
+    return JSCFunctionListEntry {
+        .name = name,
+        .prop_flags = flags,
+        .def_type = 0,
+        .magic = 0,
+        .u = {
+            .func = {
+                .length = length,
+                .cproto = JS_CFUNC_generic,
+                .cfunc = {.generic = func},
+            }
+        }
+    };
+}
+
+inline consteval auto prop_def(czstring name, czstring cstr, uint8_t flags = 0) -> JSCFunctionListEntry {
+    return JSCFunctionListEntry {
+        .name = name,
+        .prop_flags = flags,
+        .def_type = JS_DEF_PROP_STRING,
+        .magic = 0,
+        .u = {.str = cstr},
+    };
+}
+
+inline consteval auto prop_def(czstring name, int32_t val, uint8_t flags = 0) -> JSCFunctionListEntry {
+    return JSCFunctionListEntry {
+        .name = name,
+        .prop_flags = flags,
+        .def_type = JS_DEF_PROP_INT32,
+        .magic = 0,
+        .u = {.i32 = val},
+    };
+}
+
+inline consteval auto prop_def(czstring name, int64_t val, uint8_t flags = 0) -> JSCFunctionListEntry {
+    return JSCFunctionListEntry {
+        .name = name,
+        .prop_flags = flags,
+        .def_type = JS_DEF_PROP_INT64,
+        .magic = 0,
+        .u = {.i64 = val},
+    };
+}
+
+inline consteval auto prop_def(czstring name, double val, uint8_t flags = 0) -> JSCFunctionListEntry {
+    return JSCFunctionListEntry {
+        .name = name,
+        .prop_flags = flags,
+        .def_type = JS_DEF_PROP_DOUBLE,
+        .magic = 0,
+        .u = {.f64 = val},
+    };
+}
+
+inline consteval auto prop_def(czstring name, uint64_t val, uint8_t flags = 0) -> JSCFunctionListEntry {
+    return JSCFunctionListEntry {
+        .name = name,
+        .prop_flags = flags,
+        .def_type = JS_DEF_PROP_DOUBLE,
+        .magic = 0,
+        .u = {.u64 = val},
+    };
+}
+
+inline consteval auto cgetset_def(
+    czstring name,
+    JSValue (*getter)(JSContext *ctx, JSValueConst this_val),
+    JSValue (*setter)(JSContext *ctx, JSValueConst this_val, JSValueConst val),
+    uint8_t flags = 0
+) -> JSCFunctionListEntry {
+    return JSCFunctionListEntry {
+        .name = name,
+        .prop_flags = flags,
+        .def_type = 1,
+        .magic = 0,
+        .u = {
+            .getset = {
+                .get = {.getter = getter},
+                .set = {.setter = setter},
+            },
+        },
+    };
+}
+
 namespace detail {
     template<typename Args>
     consteval auto js_arity_impl() noexcept -> size_t {
@@ -26,14 +113,22 @@ namespace detail {
 
         if constexpr (length == 0 || std::is_same_v<Args, std::tuple<JSContext *, JSValueConst, int, JSValueConst>>) {
             return 0;
-        } else if constexpr (length >= 2 && std::is_same_v<std::tuple_element_t<0, Args>, JSContext *>
-                             && std::is_same_v<std::tuple_element_t<1, Args>, JSValueConst>) {
-            return length - 2;
-        } else if constexpr (length >= 1 && std::is_same_v<std::tuple_element_t<0, Args>, JSContext *>) {
-            return length - 1;
-        } else {
-            return length;
         }
+
+        if constexpr (length >= 2) {
+            if constexpr (std::is_same_v<std::tuple_element_t<0, Args>, JSContext *>
+                          && std::is_same_v<std::tuple_element_t<1, Args>, JSValueConst>) {
+                return length - 2;
+            }
+        }
+
+        if constexpr (length >= 1) {
+            if constexpr (std::is_same_v<std::tuple_element_t<0, Args>, JSContext *>) {
+                return length - 1;
+            }
+        }
+
+        return length;
     }
 
     template<auto func>
@@ -60,31 +155,45 @@ namespace detail {
     }
 
     template<typename Args>
-    auto get_args(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) noexcept -> JSResult<Args> {
-        if constexpr (std::tuple_size_v<Args> == 0) {
+    auto get_args(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) noexcept -> JSResult<Args> try {
+        constexpr auto length = std::tuple_size_v<Args>;
+
+        if constexpr (length == 0) {
             return std::make_tuple();
-        } else if constexpr (std::is_same_v<Args, std::tuple<JSContext *, JSValueConst, int, JSValueConst>>) {
-            return std::make_tuple(ctx, this_val, argc, argv);
-        } else if constexpr (std::is_same_v<std::tuple_element_t<0, Args>, JSContext *>
-                             && std::is_same_v<std::tuple_element_t<1, Args>, JSValueConst>) {
-            using ArgsCpp = remove_first_type<typename remove_first_type<Args>::type>::type;
-            auto args = unpack_args_t<ArgsCpp>(ctx, argc, argv);
-            if (!args) return Unexpected(args.error());
-            return std::tuple_cat(std::make_tuple(ctx, this_val), *args);
-        } else if constexpr (std::is_same_v<std::tuple_element_t<0, Args>, JSContext *>) {
-            using ArgsCpp = remove_first_type<Args>::type;
-            auto args = unpack_args_t<ArgsCpp>(ctx, argc, argv);
-            if (!args) return Unexpected(args.error());
-            return std::tuple_cat(std::make_tuple(ctx), *args);
-        } else {
-            auto args = unpack_args_t<Args>(ctx, argc, argv);
-            if (!args) return Unexpected(args.error());
-            return *args;
         }
+
+        if constexpr (std::is_same_v<Args, std::tuple<JSContext *, JSValueConst, int, JSValueConst *>>) {
+            return std::make_tuple(ctx, this_val, argc, argv);
+        }
+
+        if constexpr (length >= 2) {
+            if constexpr (std::is_same_v<std::tuple_element_t<0, Args>, JSContext *>
+                          && std::is_same_v<std::tuple_element_t<1, Args>, JSValueConst>) {
+                using ArgsCpp = remove_first_type<typename remove_first_type<Args>::type>::type;
+                auto args = unpack_args_t<ArgsCpp>(ctx, argc, argv);
+                if (!args) return args.error();
+                return std::tuple_cat(std::make_tuple(ctx, this_val), *args);
+            }
+        }
+
+        if constexpr (length >= 1) {
+            if constexpr (std::is_same_v<std::tuple_element_t<0, Args>, JSContext *>) {
+                using ArgsCpp = remove_first_type<Args>::type;
+                auto args = unpack_args_t<ArgsCpp>(ctx, argc, argv);
+                if (!args) return args.error();
+                return std::tuple_cat(std::make_tuple(ctx), *args);
+            }
+        }
+
+        auto args = unpack_args_t<Args>(ctx, argc, argv);
+        if (!args) return args.error();
+        return *args;
+    } catch (std::exception& e) {
+        return JSError::plain_error(ctx, fmt::format("Unexpected C++ exception: {}", e.what()));
     }
 
     template<auto func>
-    constexpr auto call(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) noexcept -> JSValue {
+    auto call(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) noexcept -> JSValue {
         using Args = callable_traits::args_t<decltype(func)>;
         using Ret = callable_traits::return_type<decltype(func)>::type;
 
@@ -94,8 +203,7 @@ namespace detail {
     }
 
     template<typename T, auto func>
-    constexpr auto call_method(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) noexcept
-        -> JSValue {
+    auto call_method(JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) noexcept -> JSValue {
         using FullArgs = callable_traits::args_t<decltype(func)>;
         using Args = remove_first_type<FullArgs>::type;
         using Ret = callable_traits::return_type<decltype(func)>::type;
@@ -104,25 +212,26 @@ namespace detail {
         if (!instance) return jsthrow(instance.error());
         auto method = std::bind_front(func, *instance);
         auto args = get_args<Args>(ctx, this_val, argc, argv);
+        if (!args) return jsthrow(args.error());
 
         return call_convert_to_js_raw_throwing<Ret, Args>(method, ctx, *args);
     }
 
     template<typename T, auto func>
-    constexpr auto call_getter(JSContext *ctx, JSValueConst this_val) noexcept -> JSValue {
+    auto call_getter(JSContext *ctx, JSValueConst this_val) noexcept -> JSValue {
         return detail::call_method<T, func>(ctx, this_val, 0, nullptr);
     }
 
 } // namespace detail
 
 template<auto func>
-constexpr auto js_func() -> auto {
+consteval auto js_func() -> auto {
     return [](JSContext *ctx, JSValueConst this_val, int argc, JSValueConst *argv) noexcept -> JSValue {
         return detail::call<func>(ctx, this_val, argc, argv);
     };
 }
 
-using PropertyList = std::initializer_list<JSCFunctionListEntry>;
+using PropertyList = std::vector<JSCFunctionListEntry>;
 
 /// Override:
 /// - class_name
@@ -243,11 +352,11 @@ class JSClass {
         JS_NewClass(JS_GetRuntime(ctx), T::class_id(ctx), &T::class_def);
 
         JSValue proto = JS_NewObject(ctx);
-        JS_SetPropertyFunctionList(ctx, proto, T::instance_properties.begin(), int(T::instance_properties.size()));
+        JS_SetPropertyFunctionList(ctx, proto, T::instance_properties.data(), int(T::instance_properties.size()));
         JS_SetClassProto(ctx, T::class_id(ctx), proto);
 
-        JSValue ctor = JS_NewCFunction2(ctx, constructor, T::class_name, arity, JS_CFUNC_constructor, 0);
-        JS_SetPropertyFunctionList(ctx, ctor, T::static_properties.begin(), int(T::static_properties.size()));
+        JSValue ctor = JS_NewCFunction2(ctx, T::constructor, T::class_name, arity, JS_CFUNC_constructor, 0);
+        JS_SetPropertyFunctionList(ctx, ctor, T::static_properties.data(), int(T::static_properties.size()));
         JS_SetConstructor(ctx, ctor, proto);
 
         return own(ctx, ctor);
@@ -255,8 +364,7 @@ class JSClass {
 
     static auto get_instance(const Value& val) noexcept -> JSResult<T *> {
         auto ptr = static_cast<T *>(JS_GetOpaque(val.cget(), T::class_id(val.ctx())));
-        if (!ptr)
-            return Unexpected(JSError::type_error(val.ctx(), fmt::format("Not an instance of {}", T::class_name)));
+        if (!ptr) return JSError::type_error(val.ctx(), fmt::format("Not an instance of {}", T::class_name));
         return ptr;
     }
 
@@ -265,27 +373,14 @@ class JSClass {
 
     template<auto member>
     static consteval auto export_static_const(czstring name, uint8_t flags = 0) noexcept -> JSCFunctionListEntry {
-        using M = std::decay_t<decltype(member)>;
-        if constexpr (std::is_same_v<M, czstring>) {
-            return JS_PROP_STRING_DEF(name, member, flags);
-        } else if constexpr (std::is_same_v<M, int32_t>) {
-            return JS_PROP_INT32_DEF(name, member, flags);
-        } else if constexpr (std::is_same_v<M, int64_t>) {
-            return JS_PROP_INT64_DEF(name, member, flags);
-        } else if constexpr (std::is_same_v<M, double>) {
-            return JS_PROP_DOUBLE_DEF(name, member, flags);
-        } else if constexpr (std::is_same_v<M, uint64_t>) {
-            return JS_PROP_U2D_DEF(name, member, flags);
-        } else {
-            static_assert(false, "Type not supported");
-        }
+        return prop_def(name, member, flags);
     }
 
     template<auto member>
     static consteval auto export_static_method(czstring name, uint8_t flags = 0) noexcept -> JSCFunctionListEntry {
         constexpr auto arity = detail::js_arity<member>();
         auto func = js_func<member>();
-        return JS_CFUNC_DEF2(name, arity, func, flags);
+        return cfunc_def(name, arity, func, flags);
     }
 
     template<auto member>
@@ -297,26 +392,26 @@ class JSClass {
             return detail::call_method<T, member>(ctx, this_val, argc, argv);
         };
 
-        return JS_CFUNC_DEF2(name, arity, func, flags);
+        return cfunc_def(name, arity, func, flags);
     }
 
     template<auto getter>
     static consteval auto export_get_only(czstring name, uint8_t flags = 0) noexcept -> JSCFunctionListEntry {
         auto get = make_js_getter_func<getter>();
-        return JS_CGETSET_DEF2(name, get, nullptr, flags);
+        return cgetset_def(name, get, nullptr, flags);
     }
 
     template<auto setter>
     static consteval auto export_set_only(czstring name, uint8_t flags = 0) noexcept -> JSCFunctionListEntry {
         auto set = make_js_setter_func<setter>();
-        return JS_CGETSET_DEF2(name, nullptr, set, flags);
+        return cgetset_def(name, nullptr, set, flags);
     }
 
     template<auto getter, auto setter>
     static consteval auto export_getset(czstring name, uint8_t flags = 0) noexcept -> JSCFunctionListEntry {
         auto get = make_js_getter_func<getter>();
         auto set = make_js_setter_func<setter>();
-        return JS_CGETSET_DEF2(name, get, set, flags);
+        return cgetset_def(name, get, set, flags);
     }
 
     template<auto getter>

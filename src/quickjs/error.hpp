@@ -12,6 +12,8 @@ namespace glint::js {
 
 class JSError: public glint::error::IError {
   public:
+    JSError() = default;
+
     explicit JSError(Value&& val, std::source_location loc = std::source_location::current()) noexcept :
         _val(std::move(val)),
         _loc(loc) {}
@@ -112,12 +114,12 @@ class JSError: public glint::error::IError {
     }
 
   private:
-    Value _val;
-    std::source_location _loc;
+    Value _val {};
+    std::source_location _loc {};
 };
 
 template<typename T = std::monostate>
-using JSResult = std::expected<T, JSError>;
+using JSResult = error::Result<T, JSError>;
 
 template<typename T>
 concept is_jsresult = requires(T t, T::error_type e) {
@@ -125,7 +127,7 @@ concept is_jsresult = requires(T t, T::error_type e) {
     typename T::error_type;
     requires std::is_same_v<typename T::error_type, JSError>;
     requires std::is_constructible_v<T, typename T::value_type>;
-    requires std::is_constructible_v<T, std::unexpected<typename T::error_type>>;
+    requires std::is_constructible_v<T, typename T::error_type>;
 };
 
 inline auto jsthrow(const JSError& e) noexcept -> JSValue {
@@ -138,13 +140,13 @@ inline auto jsthrow(const JSError& e) noexcept -> JSValue {
 namespace glint {
 
 [[nodiscard]]
-inline auto err(js::JSError e) noexcept -> Unexpected<Error> {
-    return Unexpected(static_cast<Error>(std::make_shared<js::JSError>(std::move(e))));
+inline auto err(js::JSError e) noexcept -> Error {
+    return static_cast<Error>(std::make_shared<js::JSError>(std::move(e)));
 }
 
 template<typename T>
-auto err(const js::JSResult<T>& r) noexcept -> Unexpected<Error> {
-    return Unexpected(static_cast<Error>(std::make_shared<js::JSError>(r.error())));
+auto err(const js::JSResult<T>& r) noexcept -> Error {
+    return static_cast<Error>(std::make_shared<js::JSError>(r.error()));
 }
 
 } // namespace glint

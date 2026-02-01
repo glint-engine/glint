@@ -61,16 +61,4 @@ auto class_id(not_null<JSContext *> js) -> JSClassID {
     return class_id<T>(JS_GetRuntime(js));
 }
 
-template<auto T>
-auto class_id(not_null<JSRuntime *> rt) -> JSClassID {
-    static auto id = JSClassID {0};
-    JS_NewClassID(rt, &id);
-    return id;
-}
-
-template<auto T>
-auto class_id(not_null<JSContext *> js) -> JSClassID {
-    return class_id<T>(JS_GetRuntime(js));
-}
-
 } // namespace glint::js

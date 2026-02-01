@@ -1,7 +1,5 @@
-import Sound from "glint:Sound";
-import Color from "glint:Color";
-import screen from "glint:screen";
-import graphics from "glint:graphics";
+import { Sound } from "@glint/audio";
+import { Color, graphics, screen } from "@glint/core";
 
 class Game {
     constructor() {

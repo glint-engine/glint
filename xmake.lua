@@ -9,7 +9,7 @@ add_requires("quickjs-ng v0.11.0", { alias = "quickjs", configs = { debug = true
 add_requires("raylib 5.5")
 add_requires("spdlog 1.16.0", { configs = { header_only = false, fmt_external = true } })
 
-set_languages({ "c++23", "c11" })
+set_languages({ "c++20", "c11" })
 set_warnings("all", "extra")
 
 if is_plat("windows") then
@@ -23,12 +23,13 @@ target("glint", function()
 		"src/error.cpp",
 		"src/file_store.cpp",
 		"src/main.cpp",
-		"src/plugins/*.cpp"
+		"src/plugins/core.cpp",
+		"src/plugins/audio.cpp"
 	)
 	add_files("src/**.js")
 	add_includedirs("src", { public = true })
 	add_headerfiles("src/(**.hpp)")
-	add_packages({ "quickjs", "fmt", "libzip", "spdlog", "raylib", "microsoft-gsl", "boost", })
+	add_packages({ "quickjs", "fmt", "libzip", "spdlog", "raylib", "microsoft-gsl", "boost" })
 	add_defines("SPDLOG_COMPILED_LIB")
 	add_defines("SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE")
 	add_rules("utils.bin2c", { extensions = ".js" })

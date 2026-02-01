@@ -1,6 +1,4 @@
-import Color from "glint:Color";
-import graphics from "glint:graphics";
-import mouse from "glint:mouse";
+import { Color, graphics, mouse } from "@glint/core";
 
 export const config = {
     window: {

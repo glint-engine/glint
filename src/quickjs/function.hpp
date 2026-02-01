@@ -12,7 +12,7 @@ class Function {
   public:
     static auto from_value(Value value) noexcept -> JSResult<Function> {
         if (!JS_IsFunction(value.ctx(), value.cget())) {
-            return Unexpected(JSError::type_error(value.ctx(), "Not a function"));
+            return JSError::type_error(value.ctx(), "Not a function");
         }
 
         return Function(std::move(value));
@@ -30,7 +30,7 @@ class Function {
         auto val = JS_Call(_value.ctx(), _value.cget(), this_value, int(args.size()), argv.get());
         if (JS_HasException(_value.ctx())) {
             auto ex = Value::owned(_value.ctx(), JS_GetException(_value.ctx()));
-            return Unexpected(JSError(std::move(ex)));
+            return JSError(std::move(ex));
         }
         return Value::owned(_value.ctx(), val);
     }

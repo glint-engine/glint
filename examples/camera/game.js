@@ -1,8 +1,4 @@
-import Camera from "glint:Camera";
-import graphics from "glint:graphics";
-import Color from "glint:Color";
-import screen from "glint:screen";
-import Vector2 from "glint:Vector2";
+import { Camera, graphics, Color, screen, Vector2 } from "@glint/core";
 
 const camera = Camera.default();
 const bg = Color.fromHex("#181818");

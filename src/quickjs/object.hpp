@@ -15,9 +15,7 @@ class Object {
   public:
     auto static from_value(Value v) noexcept -> JSResult<Object> {
         if (!JS_IsObject(v.cget())) {
-            return Unexpected(
-                JSError::type_error(v.ctx(), fmt::format("Value of type '{}' is not an object", display_type(v)))
-            );
+            return JSError::type_error(v.ctx(), fmt::format("Value of type '{}' is not an object", display_type(v)));
         }
 
         return Object(std::move(v));

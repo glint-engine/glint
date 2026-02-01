@@ -1,5 +1,5 @@
-import Music from "glint:Music";
-import screen from "glint:screen";
+import { Music } from "@glint/audio";
+import { screen } from "@glint/core";
 
 let music;
 

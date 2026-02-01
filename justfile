@@ -13,7 +13,7 @@ check-js:
 
 check-cpp:
     xmake build -r glint
-    xmake check clang.tidy --quiet
+    xmake check clang.tidy --quiet --fix
 
 build:
     xmake build glint
@@ -34,4 +34,4 @@ format:
 doc-js:
     npm run doc
 
-prepare: format check
+prepare: check format

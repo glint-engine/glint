@@ -7,11 +7,8 @@
 
 #include <defer.hpp>
 #include <engine.hpp>
+#include <plugins/core.hpp>
 #include <plugins/audio.hpp>
-#include <plugins/console.hpp>
-#include <plugins/graphics.hpp>
-#include <plugins/math.hpp>
-#include <plugins/window.hpp>
 #include <file_store.hpp>
 
 auto main(int argc, char **argv) noexcept -> int try {
@@ -37,10 +34,7 @@ auto main(int argc, char **argv) noexcept -> int try {
     auto engine = std::move(*engine_result);
 
     SPDLOG_TRACE("Registering plugins");
-    engine->register_plugin(plugins::console::plugin(engine->js_context()));
-    engine->register_plugin(plugins::math::plugin(engine->js_context()));
-    engine->register_plugin(plugins::window::plugin(engine->js_context()));
-    engine->register_plugin(plugins::graphics::plugin(engine->js_context()));
+    engine->register_plugin(plugins::core::plugin(engine->js_context()));
     engine->register_plugin(plugins::audio::plugin(engine->js_context()));
 
     if (auto r = engine->load_plugins(); !r) {

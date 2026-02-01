@@ -1,6 +1,5 @@
 #pragma once
 
-#include <expected>
 #include <memory>
 #include <optional>
 #include <source_location>
@@ -8,6 +7,7 @@
 #include <variant>
 
 #include <gsl/gsl>
+#include <boost/system/result.hpp>
 
 #include <types.hpp>
 #include <defer.hpp>
@@ -86,11 +86,8 @@ class StdError: public IError {
 
 using Error = std::shared_ptr<IError>;
 
-template<typename E>
-using Unexpected = std::unexpected<E>;
-
 template<typename T = std::monostate, typename E = Error>
-using Result = std::expected<T, E>;
+using Result = boost::system::result<T, E>;
 
 /// Create new error
 [[nodiscard]]
@@ -110,20 +107,16 @@ namespace glint {
 
 using error::Error;
 using error::Result;
-using error::Unexpected;
 
 [[nodiscard]]
-auto err(Error e) noexcept -> Unexpected<Error>;
+auto err(std::string msg, std::source_location loc = std::source_location::current()) noexcept -> Error;
 
 [[nodiscard]]
-auto err(std::string msg, std::source_location loc = std::source_location::current()) noexcept -> Unexpected<Error>;
-
-[[nodiscard]]
-auto err(std::exception& e, std::source_location loc = std::source_location::current()) noexcept -> Unexpected<Error>;
+auto err(std::exception& e, std::source_location loc = std::source_location::current()) noexcept -> Error;
 
 template<typename T, typename E>
-auto err(const Result<T, E>& r) noexcept -> Unexpected<E> {
-    return Unexpected(r.error());
+auto err(const Result<T, E>& r) noexcept -> E {
+    return r.error();
 }
 
 } // namespace glint
