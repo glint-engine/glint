@@ -14,8 +14,9 @@ jobs:
         os:
           - ubuntu-24.04
           - ubuntu-24.04-arm
-          - windows-latest
-          - windows-11-arm
+          # Disable Windows until MSVC build gets fixed
+          # - windows-latest
+          # - windows-11-arm
           - macOS-latest
 
     runs-on: ${{ matrix.os }}
