@@ -35,3 +35,10 @@ doc-js:
     npm run doc
 
 prepare: check format
+
+package-release platform binary:
+    mkdir -p build
+    zip {{ "build" / "glint-" + platform + ".zip" }} -r ./examples
+    zip {{ "build" / "glint-" + platform + ".zip" }} -r ./typings
+    zip {{ "build" / "glint-" + platform + ".zip" }} README.md
+    zip {{ "build" / "glint-" + platform + ".zip" }} -j {{ binary }}
