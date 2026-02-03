@@ -240,7 +240,7 @@ auto Engine::load_module(const std::filesystem::path& name) noexcept -> Result<o
             JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_COMPILE_ONLY
         );
 
-        if (JS_IsException(ret)) return nullptr;
+        if (JS_IsException(ret)) return static_cast<JSModuleDef *>(nullptr);
         auto mod = static_cast<JSModuleDef *>(JS_VALUE_GET_PTR(ret));
         JS_FreeValue(js_context(), ret);
 
@@ -274,13 +274,13 @@ auto Game::create(not_null<JSContext *> js, not_null<IFileStore *> store) -> Res
         "game.js",
         JS_EVAL_TYPE_MODULE | JS_EVAL_FLAG_STRICT | JS_EVAL_FLAG_COMPILE_ONLY
     );
-    if (JS_HasException(js)) return err(js::JSError::from_value(js::own(js, JS_GetException(js))));
+    if (JS_HasException(js)) return err(js::JSError(js::own(js, JS_GetException(js))));
 
     SPDLOG_TRACE("Evaluating game module");
     auto eval_ret = JS_EvalFunction(js, mod);
     defer(JS_FreeValue(js, eval_ret));
     auto eval_result = JS_PromiseResult(js, eval_ret);
-    if (JS_IsError(eval_result)) return err(js::JSError::from_value(js::own(js, eval_result)));
+    if (JS_IsError(eval_result)) return err(js::JSError(js::own(js, eval_result)));
     JS_FreeValue(js, eval_result);
 
     auto m = static_cast<JSModuleDef *>(JS_VALUE_GET_PTR(mod));
@@ -398,10 +398,12 @@ extern "C" auto module_loader(JSContext *ctx, const char *module_name, void *opa
     }
 }
 
-#define glint_GAMECONFIG_READ_OPTIONAL(object, variable, jsname)                                                       \
+#define GLINT_GAMECONFIG_READ_OPTIONAL(object, variable, jsname)                                                       \
     do { /* NOLINT */                                                                                                  \
         if (auto v = (object).at<std::optional<decltype(variable)>>(#jsname)) {                                        \
-            if (*v) (variable) = **v;                                                                                  \
+            if (*v) {                                                                                                  \
+                (variable) = **v; /* NOLINT */                                                                         \
+            }                                                                                                          \
         } else {                                                                                                       \
             return err(v);                                                                                             \
         }                                                                                                              \
@@ -414,31 +416,31 @@ auto read_config(js::Object& ns) -> Result<GameConfig> {
     if (!obj_result) return err(obj_result);
     auto obj_opt = std::move(*obj_result);
     if (!obj_opt) return config;
-    auto obj = std::move(*obj_opt);
+    auto obj = std::move(*obj_opt); // NOLINT
     auto window_obj_result = obj.at<std::optional<js::Object>>("window");
     if (!window_obj_result) return err(window_obj_result);
     if (!window_obj_result->has_value()) return config;
-    auto window_obj = std::move(**window_obj_result);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.title, title);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.width, width);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.height, height);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.fps, fps);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.vsync_hint, vsync);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.fullscreen_mode, fullscreenMode);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.resizable, resizable);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.undecorated, undecorated);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.hidden, hidden);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.minimized, minimized);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.maximized, maximized);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.unfocused, unfocused);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.topmost, topmost);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.always_run, alwaysRun);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.transparent, transparent);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.highdpi, highdpi);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.mouse_passthrough, mousePassthrough);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.borderless_windowed_mode, borderlessWindowedMode);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.msaa_4x_hint, msaa4x);
-    glint_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.interlaced_hint, interlaced);
+    auto window_obj = std::move(**window_obj_result); // NOLINT
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.title, title);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.width, width);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.height, height);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.fps, fps);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.vsync_hint, vsync);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.fullscreen_mode, fullscreenMode);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.resizable, resizable);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.undecorated, undecorated);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.hidden, hidden);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.minimized, minimized);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.maximized, maximized);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.unfocused, unfocused);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.topmost, topmost);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.always_run, alwaysRun);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.transparent, transparent);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.highdpi, highdpi);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.mouse_passthrough, mousePassthrough);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.borderless_windowed_mode, borderlessWindowedMode);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.msaa_4x_hint, msaa4x);
+    GLINT_GAMECONFIG_READ_OPTIONAL(window_obj, config.window.interlaced_hint, interlaced);
 
     return config;
 }

@@ -62,16 +62,12 @@ auto free_ptr(owner<IError *> e) noexcept -> void {
 
 namespace glint {
 
-auto err(Error e) noexcept -> Unexpected<Error> {
-    return Unexpected(std::move(e));
+auto err(std::string msg, std::source_location loc) noexcept -> Error {
+    return static_cast<Error>(std::make_shared<error::StringError>(std::move(msg), loc));
 }
 
-auto err(std::string msg, std::source_location loc) noexcept -> Unexpected<Error> {
-    return Unexpected(static_cast<Error>(std::make_shared<error::StringError>(std::move(msg), loc)));
-}
-
-auto err(std::exception& e, std::source_location loc) noexcept -> Unexpected<Error> {
-    return Unexpected(static_cast<Error>(std::make_shared<error::StdError>(e, loc)));
+auto err(std::exception& e, std::source_location loc) noexcept -> Error {
+    return static_cast<Error>(std::make_shared<error::StdError>(e, loc));
 }
 
 } // namespace glint

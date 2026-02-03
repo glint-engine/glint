@@ -1,8 +1,4 @@
-import Color from "glint:Color";
-import { Font } from "glint:Font";
-import graphics from "glint:graphics";
-import screen from "glint:screen";
-import Vector2 from "glint:Vector2";
+import { Color, Font, graphics, screen, Vector2 } from "@glint/core";
 
 let font;
 

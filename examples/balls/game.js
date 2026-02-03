@@ -1,7 +1,4 @@
-import Color from "glint:Color";
-import graphics from "glint:graphics";
-import screen from "glint:screen";
-
+import { Color, graphics, screen } from "@glint/core";
 import { Ball } from "./Ball.js";
 
 class Game {

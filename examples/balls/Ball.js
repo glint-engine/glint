@@ -1,6 +1,4 @@
-import screen from "glint:screen";
-import graphics from "glint:graphics";
-import Vector2 from "glint:Vector2";
+import { Vector2, screen, graphics } from "@glint/core";
 
 export class Ball {
     constructor(x, y, angle, color) {

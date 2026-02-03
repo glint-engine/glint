@@ -1,40 +1,52 @@
 #pragma once
 
-#include <gsl/gsl>
+#include <spdlog/spdlog.h>
 
-#include <engine/audio.hpp>
-#include <engine/plugin.hpp>
-#include <quickjs.hpp>
-#include <raylib.hpp>
-
-namespace glint::js {
-
-template<>
-auto try_into<engine::audio::Music *>(const Value& val) noexcept -> JSResult<engine::audio::Music *>;
-
-template<>
-auto try_into<engine::audio::Sound *>(const Value& val) noexcept -> JSResult<engine::audio::Sound *>;
-
-} // namespace glint::js
+#include <plugins/audio/music.hpp>
+#include <plugins/audio/sound.hpp>
 
 namespace glint::plugins::audio {
 
-using namespace gsl;
+constexpr static char AUDIO_MODULE[] = {
+#include "audio_module.js.h"
+};
 
-auto plugin(JSContext *js) -> EnginePlugin;
+constexpr static char AUDIO_LOAD[] = {
+#include "audio_load.js.h"
+};
 
-namespace music_class {
-    using Music = engine::audio::Music;
+auto plugin(JSContext *ctx) -> EnginePlugin {
+    return EnginePlugin {
+        .name = "audio",
+        .c_modules =
+            {
+                {"@glint/audio/Music", music_module(ctx)},
+                {"@glint/audio/Sound", sound_module(ctx)},
+            },
+        .js_modules =
+            {
+                {"@glint/audio", AUDIO_MODULE},
+            },
+        .load = [=]() -> Result<> {
+            auto ret = JS_Eval(ctx, AUDIO_LOAD, sizeof(AUDIO_LOAD) - 1, "@glint/audio/load.js", JS_EVAL_TYPE_MODULE);
+            JS_FreeValue(ctx, ret);
+            engine::audio::init();
+            return {};
+        },
 
-    extern const JSClassDef MUSIC;
-    auto module(JSContext *js) -> JSModuleDef *;
-} // namespace music_class
-
-namespace sound_class {
-    using Sound = engine::audio::Sound;
-
-    extern const JSClassDef SOUND;
-    auto module(JSContext *js) -> ::JSModuleDef *;
-} // namespace sound_class
+        .unload = []() -> Result<> {
+            engine::audio::close();
+            return {};
+        },
+        .update = []() -> Result<> {
+            for (const auto music : engine::audio::get().musics) {
+                if (engine::audio::music::is_playing(*music)) {
+                    engine::audio::music::update(*music);
+                }
+            }
+            return {};
+        }
+    };
+}
 
 } // namespace glint::plugins::audio

@@ -1,7 +1,4 @@
-import graphics from "glint:graphics";
-import Color from "glint:Color";
-import Texture from "glint:Texture";
-import Vector2 from "glint:Vector2";
+import { Color, graphics, Texture, Vector2 } from "@glint/core";
 
 export const config = {
     window: {
@@ -24,5 +21,5 @@ export function load() {
 
 export function draw() {
     graphics.clear(bgColor);
-    graphics.textureEx(t, new Vector2(0, 0), 0, 0.65, new Color(255, 255, 255));
+    graphics.textureEx(t, new Vector2(0, 0), 0, 0.65, new Color(255, 255, 255, 255));
 }

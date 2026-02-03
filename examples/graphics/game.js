@@ -1,7 +1,4 @@
-import graphics from "glint:graphics";
-import Color from "glint:Color";
-import Vector2 from "glint:Vector2";
-import Rectangle from "glint:Rectangle";
+import { Color, graphics, Rectangle, Vector2 } from "@glint/core";
 
 export const config = {
     window: {
@@ -10,6 +7,8 @@ export const config = {
 };
 
 const bgColor = { r: 100, g: 100, b: 100, a: 255 };
+
+console.log(Rectangle.zero());
 
 export function draw() {
     graphics.clear(bgColor);
