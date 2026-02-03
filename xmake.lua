@@ -44,6 +44,10 @@ target("glint", function()
 	add_configfiles("src/config.h.in", { filename = "glint_config.h" })
 	add_includedirs("$(builddir)/config")
 
+	if is_plat("mingw") then
+		add_ldflags("-static", {force = true})
+	end
+
 	add_rules("utils.bin2c", { extensions = ".js" })
 end)
 
