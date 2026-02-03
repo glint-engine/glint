@@ -5,6 +5,7 @@
 
 #include <defer.hpp>
 #include <engine/window.hpp>
+#include <glint_config.h>
 #include <utility>
 
 namespace glint {
@@ -202,6 +203,20 @@ auto Engine::load_plugins() noexcept -> Result<> try {
         if (auto r = game.draw(); !r) return err(r);
 
         window::draw_fps(w);
+
+        const auto version_text = fmt::format("glint v{} ({})", GLINT_VERSION_STRING, GLINT_GIT_HASH_SHORT);
+        const auto font_size = 10;
+        const auto version_width = MeasureText(version_text.c_str(), font_size);
+        const auto version_outline_rect_padding = 3;
+        DrawRectangle(
+            10 - version_outline_rect_padding,
+            GetScreenHeight() - version_outline_rect_padding - 10 - font_size,
+            version_width + version_outline_rect_padding * 2,
+            font_size + version_outline_rect_padding * 2,
+            ColorAlpha(GRAY, 0.2f)
+        );
+        DrawText(version_text.c_str(), 10, GetScreenHeight() - 10 - font_size, font_size, ColorAlpha(WHITE, 0.4f));
+
         window::end_drawing(w);
     }
 

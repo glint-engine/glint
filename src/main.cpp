@@ -2,6 +2,7 @@
 #include <filesystem>
 
 #include <fmt/format.h>
+#include <quickjs.h>
 #include <spdlog/cfg/env.h>
 #include <spdlog/spdlog.h>
 
@@ -11,10 +12,17 @@
 #include <plugins/audio.hpp>
 #include <file_store.hpp>
 
+#include <glint_config.h>
+
 auto main(int argc, char **argv) noexcept -> int try {
     using namespace glint;
 
     spdlog::cfg::load_env_levels();
+
+    SPDLOG_INFO("Glint Engine v{}", GLINT_VERSION_STRING);
+    SPDLOG_INFO("Git hash: {}", GLINT_GIT_HASH_FULL);
+    SPDLOG_INFO("QuickJS version: {}", JS_GetVersion());
+    SPDLOG_INFO("Render backend: {} v{}", "raylib", RAYLIB_VERSION);
 
     auto args = std::span(argv, size_t(argc));
 

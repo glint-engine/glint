@@ -1,6 +1,7 @@
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.compile_commands.autoupdate", { outputdir = "build" })
 
+
 add_requires("boost 1.90.0")
 add_requires("fmt", { configs = { header_only = false } })
 add_requires("libzip v1.11.4")
@@ -11,13 +12,17 @@ add_requires("spdlog 1.16.0", { configs = { header_only = false, fmt_external = 
 
 set_languages({ "c++20", "c11" })
 set_warnings("all", "extra")
+set_policy("build.always_update_configfiles", true)
 
 if is_plat("windows") then
 	add_defines("_CRT_SECURE_NO_WARNINGS")
 end
 
 target("glint", function()
+	set_version("0.1.0", { build = "dev" })
 	set_kind("binary")
+	add_packages({ "quickjs", "fmt", "libzip", "spdlog", "raylib", "microsoft-gsl", "boost" })
+
 	add_files(
 		"src/engine.cpp",
 		"src/error.cpp",
@@ -27,11 +32,18 @@ target("glint", function()
 		"src/plugins/audio.cpp"
 	)
 	add_files("src/**.js")
+
 	add_includedirs("src", { public = true })
 	add_headerfiles("src/(**.hpp)")
-	add_packages({ "quickjs", "fmt", "libzip", "spdlog", "raylib", "microsoft-gsl", "boost" })
+
+
 	add_defines("SPDLOG_COMPILED_LIB")
 	add_defines("SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE")
+
+	set_configdir("$(builddir)/config")
+	add_configfiles("src/config.h.in", { filename = "glint_config.h" })
+	add_includedirs("$(builddir)/config")
+
 	add_rules("utils.bin2c", { extensions = ".js" })
 end)
 
