@@ -54,13 +54,13 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: muen-${{ runner.os }}-${{ runner.arch }}
+          name: glint-${{ runner.os }}-${{ runner.arch }}
           path: |
-            build/linux/x86_64/release/muen
-            build/linux/arm64/release/muen
-            build/windows/x64/release/muen.exe
-            build/windows/arm64/release/muen.exe
-            build/macosx/arm64/release/muen
+            build/linux/x86_64/release/glint
+            build/linux/arm64/release/glint
+            build/windows/x64/release/glint.exe
+            build/windows/arm64/release/glint.exe
+            build/macosx/arm64/release/glint
 
   build-engine-summary:
       name: build-engine
